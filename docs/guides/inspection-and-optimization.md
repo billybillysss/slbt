@@ -1,6 +1,6 @@
 # Inspect and optimize SQL
 
-Inspection answers “what derives this output?” without changing files.
+Inspection answers “where does this output come from?” without changing files.
 Optimization can simplify the canonical implementation after review. Neither
 connects to a warehouse, produces warehouse cost estimates or guarantees speedups.
 
@@ -13,11 +13,11 @@ uv run slbt --project-dir examples/jaffle_shop inspect gld_customer_leaderboard 
 uv run slbt --project-dir examples/jaffle_shop inspect gld_customers --optimize false
 ```
 
-Defaults: all final columns, `--optimize true`, `--view sql`. Both optimization
-settings expand loaded upstream refs, local steps and static macros. Multiple
-columns produce one query in the requested order. Optimization prunes unused
-values and merges eligible subqueries while retaining values needed by DISTINCT,
-grouping, joins, windows, ordering and limits.
+Defaults: all final columns, `--optimize true`, `--view sql`. Inspection expands
+loaded upstream refs, local steps and static macros whether optimization is
+enabled or disabled. Multiple columns produce one query in the requested order.
+Optimization prunes unused values and merges eligible subqueries while retaining
+values needed by DISTINCT, grouping, joins, windows, ordering and limits.
 
 SQL and logical-plan views share canonical optimization's generated relation
 naming: `a, b, c, …, z, aa, ab, …`, skipping case-insensitive collisions with
@@ -33,7 +33,7 @@ ambiguous columns report errors rather than inventing schema information.
 ## Preview canonical optimization
 
 ```sh
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value gld_optimizer_constants --preserve-marco false --dry-run
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value gld_optimizer_constants --preserve-macro false --dry-run
 ```
 
 **Without `--dry-run`, `optimize` rewrites canonical YAML.** Keep a separate copy
@@ -42,7 +42,7 @@ The preview reports file actions; use a branch and review the actual Git diff
 after deliberate writes:
 
 ```sh
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value gld_optimizer_constants --preserve-marco false
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value gld_optimizer_constants --preserve-macro false
 git diff -- examples/jaffle_shop/models
 uv run slbt --project-dir examples/jaffle_shop validate
 uv run slbt --project-dir examples/jaffle_shop export dbt
@@ -70,11 +70,12 @@ workbook edits before overwriting the workbook.
 
 ### Macros
 
-The current spelling is `preserve_marco` / `--preserve-marco`. Its default `true`
-keeps static calls, including wrappers such as `round_money(SUM(amount))` whose
+`preserve_macro` / `--preserve-macro` defaults to `true` and keeps static calls,
+including wrappers such as `round_money(SUM(amount))` whose
 aggregate is visible in the arguments. Macros must expose column dependencies
 and cannot hide or change aggregate, window or query semantics. Pass
-`--preserve-marco false` to expand static calls before optimization.
+`--preserve-macro false` to expand static calls before optimization. The old
+`preserve_marco` / `--preserve-marco` spellings remain supported as legacy aliases.
 
 Runtime-dependent models are skipped unchanged in either mode, including during
 enrichment. The CLI explains the skip:

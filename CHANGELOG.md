@@ -21,6 +21,11 @@ documentation/repository-hardening work; it does not reconstruct prior releases.
 
 ### Changed
 
+- Corrected `--preserve-macro`, the `optimization.preserve_macro` configuration
+  key and the `optimize_project(preserve_macro=...)` keyword. The old `marco`
+  spellings remain supported as legacy aliases; values and defaults are unchanged.
+  Rename existing uses to migrate, without supplying both configuration keys or
+  Python keywords together.
 - Inspection SQL and logical plans now share canonical optimization's
   collision-safe alphabetic generated-relation names, preserving authored
   aliases and output column names instead of exposing an internal wrapper name.

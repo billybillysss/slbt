@@ -112,7 +112,7 @@ def test_readme_optimization_example_matches_yaml_rewrite(tmp_path, examples):
     path = destination / "models/gld/optimization/customer_lifetime_value.yml"
     original = load_yaml(path)["tables"][0]
     assert excerpts[0] == {key: original[key] for key in ("steps", "output")}
-    arguments = ["--project-dir", str(destination), "optimize", "-s", "gld_customer_lifetime_value", "--preserve-marco", "false"]
+    arguments = ["--project-dir", str(destination), "optimize", "-s", "gld_customer_lifetime_value", "--preserve-macro", "false"]
     before = {path: path.read_bytes() for path in destination.rglob("*") if path.is_file()}
     preview = CliRunner().invoke(cli, [*arguments, "--dry-run"])
     assert preview.exit_code == 0, preview.output
@@ -148,7 +148,7 @@ def test_cli_version_needs_no_project(tmp_path, monkeypatch):
     ["export", "dbt", "--dry-run"],
     ["export", "catalog", "--format", "json", "--dry-run"],
     ["optimize", "-s", "gld_payment_method_summary", "--dry-run"],
-    ["optimize", "-s", "gld_customer_lifetime_value", "--preserve-marco", "false", "--dry-run"],
+    ["optimize", "-s", "gld_customer_lifetime_value", "--preserve-macro", "false", "--dry-run"],
 ])
 def test_documented_preview_commands_succeed_without_writes(arguments):
     before = {path: path.read_bytes() for path in EXAMPLE.rglob("*") if path.is_file() and not any(part in {"dbt", "target", "logs"} for part in path.relative_to(EXAMPLE).parts)}

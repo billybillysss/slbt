@@ -19,13 +19,14 @@ documented in [configuration](configuration.md).
 | `export dbt` | `--path PATH`, `--subpath FOLDER`, `--prune`, `--dry-run` | Reconciles generated dbt outputs. |
 | `export catalog` | `--catalog NAME ...`, `--path PATH`, `--format xlsx\|csv\|json`, `--prune`, `--dry-run` | Reconciles generated catalogs. |
 | `import PATH` | `--catalog NAME`, `--dry-run` | Writes canonical edits from XLSX or a CSV directory. JSON import is unsupported. |
-| `optimize` | `-s/--select NAME ...`, `--format pretty\|compact`, `--preserve-marco true\|false`, `--enrich true\|false`, `--dry-run` | Rewrites selected canonical models; all models by default. |
+| `optimize` | `-s/--select NAME ...`, `--format pretty\|compact`, `--preserve-macro true\|false`, `--enrich true\|false`, `--dry-run` | Rewrites selected canonical models; all models by default. |
 | `enrich` | `-s/--select NAME ...`, `--dry-run` | Fills missing canonical types/descriptions from known lineage. |
 | `sync-classifications` | `--dry-run` | Syncs Silver domains into Bronze in the registry. |
 
 Options accepting names can be repeated or accept several space-separated names.
 Import's `--catalog` accepts one name and is required when selection is ambiguous.
-Boolean options take explicit `true` or `false`, rather than acting as toggles.
+Options shown with Boolean values take explicit `true` or `false`. Standalone
+flags such as `--dry-run` and `--prune` take no value.
 
 ## Read-only investigation
 
@@ -41,9 +42,10 @@ than one requested column produces one query in that order. SQL headers are
 comments, so stdout can be redirected to a file. Logical source/ref leaves still
 require physical bindings. A plan is not a warehouse execution plan.
 
-Generated relation aliases use `a, b, c, …, z, aa, ab, …`, skipping collisions
-and preserving authored aliases and output column names. SQL and plan views use
-the same naming, including with `--optimize false`.
+Generated relation aliases use `a, b, c, …, z, aa, ab, …`, skipping collisions.
+Authored aliases are preserved when their query blocks survive optimization;
+final output column names are preserved. SQL and plan views use the same naming,
+including with `--optimize false`.
 
 ## Preview before writing
 
@@ -52,7 +54,7 @@ uv run slbt --project-dir examples/jaffle_shop export dbt --dry-run
 uv run slbt --project-dir examples/jaffle_shop export dbt --subpath gld/optimization --dry-run
 uv run slbt --project-dir examples/jaffle_shop export catalog --format json --dry-run
 uv run slbt --project-dir examples/jaffle_shop import examples/jaffle_shop/catalog/catalog.xlsx --dry-run
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value gld_optimizer_constants --preserve-marco false --dry-run
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value gld_optimizer_constants --preserve-macro false --dry-run
 uv run slbt --project-dir examples/jaffle_shop enrich -s slv_payments --dry-run
 uv run slbt --project-dir examples/jaffle_shop sync-classifications --dry-run
 ```

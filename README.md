@@ -18,13 +18,13 @@
   <a href="docs/getting-started.md">Get started</a> · <a href="docs/index.md">Documentation</a> · <a href="docs/guides/ai-assisted-workflow.md">AI-assisted workflow</a> · <a href="examples/jaffle_shop/README.md">Jaffle Shop demo</a> · <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
-slbt (Semantic Layer Build Tool) defines SQL transformations and business metadata
-in YAML. It generates dbt artifacts and exports JSON catalogs containing SQL,
-metadata and dependencies.
+**Unify transformation logic and business meaning. Compile to dbt, document your
+models, export structured context for AI, and inspect and optimize SQL.**
 
-Validate definitions, inspect selected output columns and optimize SQL without a
-database connection. JSON exports can provide context for external AI assistants;
-slbt does not include an LLM service.
+slbt keeps transformations, business definitions and tests together in YAML. Its
+JSON catalogs combine SQL, descriptions, types and dependencies, giving external
+AI assistants context to generate downstream logic consistent with your
+definitions—not just infer business meaning from SQL alone.
 
 ```text
 People + external AI assistants
@@ -41,6 +41,106 @@ slbt is an **offline build tool for transformation semantics**, not a metrics
 query service or a replacement for dbt's execution engine. dbt owns database
 connections, materializations, snapshots and test execution. Documentation is
 carried into dbt properties for `dbt docs`; slbt does not host a documentation site.
+
+## Why keep business meaning with transformation logic?
+
+SQL defines how values are calculated, but consumers also need to understand their
+grain, units, inclusion rules and intended use. A payment total is not necessarily
+net revenue, and a distinct order count calculated per payment method cannot
+necessarily be summed across methods.
+
+Generate dbt artifacts and structured context from the same definitions so people
+and external AI assistants can review the implementation alongside its intended
+meaning.
+
+## Keep AI-assisted logic consistent and maintainable
+
+AI assistants can produce plausible but different implementations of the same
+business request. Across many models, small differences in filters, joins, null
+handling or aggregation grain can become conflicting business definitions.
+
+Reuse accepted rules in downstream models:
+
+```text
+AI proposes logic
+       ↓
+People review definitions, inspect SQL and run tests
+       ↓
+Accepted logic becomes canonical YAML
+       ↓
+Downstream models reference approved models
+       ↓
+Changes are reviewed, tested and regenerated
+```
+
+For example, different assistants might interpret “customer lifetime value” as all
+payments, completed-order payments or payments minus refunds. Referencing an
+approved customer-value model reuses its implemented calculation instead of asking
+each assistant to recreate the rule. A different business definition should be
+explicit, not a silent reinterpretation.
+
+With slbt, you can:
+
+- Reference existing models and share supported macros
+  instead of copying calculations.
+- Review canonical YAML diffs and inspect supported
+  expanded upstream SQL, including selected columns.
+- Update canonical definitions and regenerate dbt
+  artifacts and catalogs rather than editing each output independently.
+- Export expressions, descriptions, types, logical column
+  lineage and dependencies for subsequent work.
+
+Reuse reviewed definitions to keep calculations consistent. AI output can still
+vary. Exported context cannot force an assistant to reuse a model, prevent every
+conflicting definition or prove business correctness. Offline validation, human
+review and executed dbt tests serve different purposes; none replaces the others.
+
+## Why add slbt to dbt?
+
+dbt already supports descriptions, tests, metadata, reusable models and
+machine-readable project artifacts. slbt is an optional authoring and review
+layer, not a prerequisite for documenting dbt or using AI with it.
+
+Choose slbt when you want to:
+
+- Author transformation expressions and their metadata together in YAML.
+- Generate dbt SQL and properties from those canonical definitions.
+- Inspect supported upstream transformations offline and preview logical
+  optimization.
+- Review supported definitions through editable Excel/CSV catalogs.
+- Export scoped, resolved context for external assistants and integrations.
+
+slbt adds another format and compilation step. If handwritten dbt SQL, properties
+and existing tooling already meet your needs, you may not need it.
+
+## How does this differ from dbt Semantic Layer?
+
+slbt focuses on **defining and reviewing transformations before execution**. dbt
+Semantic Layer, powered by MetricFlow, focuses on **querying reusable metrics
+across dimensions**, using declared entities, aggregation rules and supported
+join paths.
+
+| Need | Better fit |
+| --- | --- |
+| Author transformations with associated descriptions, types and tests; generate dbt artifacts | slbt |
+| Inspect supported selected-column upstream SQL offline; review logical rewrites | slbt |
+| Define reusable metrics and dynamically query them across supported dimensions and joins | dbt Semantic Layer / MetricFlow |
+| Serve governed metric queries through managed APIs and downstream integrations | dbt Semantic Layer |
+
+Both can carry business meaning. Current dbt specifications also support semantic
+annotations within model YAML, and MetricFlow supports local development and SQL
+generation; the managed service and APIs are separate components.
+
+**You do not need another semantic layer simply because you use slbt.** Add a
+metric-query layer when consumers need reusable aggregation rules, dimensional
+queries and governed metric access—not just defined transformation outputs.
+
+Some projects may benefit from both. slbt currently generates ordinary dbt
+artifacts, **not MetricFlow semantic models or metric definitions**. Using both
+requires separately maintained metric configuration and integration testing.
+
+See dbt's [semantic model specification](https://docs.getdbt.com/docs/build/semantic-models)
+and [Semantic Layer architecture](https://docs.getdbt.com/docs/use-dbt-semantic-layer/sl-architecture).
 
 ## Features
 
@@ -181,7 +281,7 @@ GROUP BY
 The export also emits descriptions, column types and tests as dbt properties.
 **Resolved JSON** includes SQL, column expressions and lineage, metadata,
 dependencies and macro-expansion status.
-This is a field-selected excerpt of the same model from `catalog.json`:
+This excerpt shows selected fields from the same model in `catalog.json`:
 
 ```json
 {
@@ -303,10 +403,10 @@ The bundled [lifetime-value teaching model](examples/jaffle_shop/models/gld/opti
 has two pass-through steps and an unused status projection. Preview their removal:
 
 ```sh
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value --preserve-marco false --dry-run
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value --preserve-macro false --dry-run
 ```
 
-`--preserve-marco false` expands static macros, including `round_money`, before
+`--preserve-macro false` expands static macros, including `round_money`, before
 optimization. **The dry run reports proposed file actions, not a YAML or SQL diff.**
 The following excerpts show the actual rewrite when applied to the teaching input.
 
@@ -382,10 +482,10 @@ Final column names and order, types, descriptions and tests are preserved. Here,
 `amount + 0` remains; the demonstrated simplification is removal of the redundant
 query layers and unused projection, not a promise that every expression is folded.
 
-To apply deliberately, use a review branch or a separate project copy:
+To apply the rewrite, use a review branch or a separate project copy:
 
 ```sh
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value --preserve-marco false
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime_value --preserve-macro false
 git diff -- examples/jaffle_shop/models/gld/optimization/customer_lifetime_value.yml
 uv run slbt --project-dir examples/jaffle_shop validate
 uv run slbt --project-dir examples/jaffle_shop export dbt

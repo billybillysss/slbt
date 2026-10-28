@@ -106,17 +106,17 @@ if you want to repeat the before/after demonstration after writing changes.
 
 ```sh
 # Preview the entire Gold optimization gallery without changing YAML.
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_optimizer_constants gld_customer_lifetime_value gld_distinct_paying_customers gld_customer_order_ranking gld_high_value_customers gld_payment_union gld_customer_leaderboard --preserve-marco false --dry-run
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_optimizer_constants gld_customer_lifetime_value gld_distinct_paying_customers gld_customer_order_ranking gld_high_value_customers gld_payment_union gld_customer_leaderboard --preserve-macro false --dry-run
 
 # Rewrite two easy-to-compare cases, then regenerate integration artifacts.
-uv run slbt --project-dir examples/jaffle_shop optimize -s gld_optimizer_constants gld_customer_lifetime_value --preserve-marco false
+uv run slbt --project-dir examples/jaffle_shop optimize -s gld_optimizer_constants gld_customer_lifetime_value --preserve-macro false
 uv run slbt --project-dir examples/jaffle_shop validate
 uv run slbt --project-dir examples/jaffle_shop export dbt
 uv run slbt --project-dir examples/jaffle_shop export catalog
 ```
 
-`--preserve-marco false` expands static macros before optimization. The spelling
-`marco` is the current public CLI/API. The default `preserve_marco: true` keeps
+`--preserve-macro false` expands static macros before optimization.
+The default `preserve_macro: true` keeps
 static calls, including wrappers around aggregates visible in their arguments.
 Preview the array/map demo or the whole project in this mode:
 

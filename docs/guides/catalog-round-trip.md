@@ -18,7 +18,7 @@ JSON is read-only and cannot round-trip.
 uv run slbt --project-dir examples/jaffle_shop import examples/jaffle_shop/catalog/catalog.xlsx --dry-run
 ```
 
-Import writes by default. After checking the preview, apply deliberately:
+Import writes by default. After checking the preview, apply the import:
 
 ```sh
 uv run slbt --project-dir examples/jaffle_shop import examples/jaffle_shop/catalog/catalog.xlsx

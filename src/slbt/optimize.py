@@ -281,13 +281,17 @@ def format_graph(rows):
     return "\n".join(lines)
 
 
-def optimize_project(project, *, models=None, dry_run=False, format=None, preserve_marco=None, enrich=None) -> OptimizationResult:
+def optimize_project(project, *, models=None, dry_run=False, format=None, preserve_macro=None, enrich=None, preserve_marco=None) -> OptimizationResult:
     """Validate every proposed rewrite before staging any selected model files."""
+    if preserve_macro is not None and preserve_marco is not None:
+        raise SpecError("use preserve_macro or its legacy alias preserve_marco, not both")
+    if preserve_marco is not None:
+        preserve_macro = preserve_marco
     settings = dict(project.optimization)
     if format is not None:
         settings["format"] = format
-    if preserve_marco is not None:
-        settings["preserve_marco"] = preserve_marco
+    if preserve_macro is not None:
+        settings["preserve_macro"] = preserve_macro
     if enrich is not None:
         settings["enrich"] = enrich
     settings = optimization_settings(settings)
@@ -299,11 +303,11 @@ def optimize_project(project, *, models=None, dry_run=False, format=None, preser
     candidates, result = {}, OptimizationResult()
     for name in selected:
         model = by_name[name]
-        tree, originals, reason = _model_tree(model, project.macros, preserve_macro=settings["preserve_marco"])
+        tree, originals, reason = _model_tree(model, project.macros, preserve_macro=settings["preserve_macro"])
         if reason:
             result.skipped[name] = reason
             continue
-        if settings["preserve_marco"]:
+        if settings["preserve_macro"]:
             _check_preserved_macros(model, project.macros)
         try:
             optimized = optimize(tree, dialect=project.dialect)

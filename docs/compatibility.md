@@ -29,9 +29,11 @@ directory. Compare validation, SQL, properties, catalog JSON, mutation diffs and
 dbt results. Check [CHANGELOG](../CHANGELOG.md) for documented changes. Do not
 assume every historical behavior has a migration tool.
 
-The existing `preserve_marco` / `--preserve-marco` spelling is intentional for
-compatibility. A future correction must include an explicit migration path;
-aliases with different spellings are not currently supported.
+Use `optimization.preserve_macro` in project configuration, `--preserve-macro` on
+the CLI and `preserve_macro` in calls to `optimize_project`. The old `preserve_marco`
+and `--preserve-marco` spellings remain supported as legacy aliases. To migrate,
+rename the existing key, option or keyword; values and defaults are unchanged.
+Do not supply both spellings in the same configuration or Python call.
 
 ## Maintainer policy for future changes
 
@@ -39,5 +41,5 @@ Record user-visible changes under Unreleased. Document CLI/config/schema changes
 add regression tests, and provide migration instructions for incompatible changes.
 If the JSON contract becomes incompatible, update its format version rather than
 silently reinterpreting existing fields. Additive fields should not require
-consumers to reject an otherwise supported envelope. This is a maintenance rule,
-not a claim of a general JSON Schema validator or an existing migration service.
+consumers to reject an otherwise supported envelope. slbt does not currently
+provide a general JSON Schema validator or migration service.

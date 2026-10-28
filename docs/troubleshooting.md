@@ -19,8 +19,9 @@ dependencies.
 
 Register the exact layer/domain in the configured model root's
 `classifications.yaml`. Use canonical version-1 fields and block-style YAML.
-Duplicate keys are errors. The setting is spelled `preserve_marco`, not
-`preserve_macro` or `preserve_macros`. See [configuration](reference/configuration.md).
+Duplicate keys are errors. Use `preserve_macro`, not `preserve_macros`. The old
+`preserve_marco` spelling remains a legacy alias; do not supply both keys.
+See [configuration](reference/configuration.md).
 
 ## Inspection cannot resolve a query
 
@@ -45,9 +46,10 @@ to import resolved JSON. See the [round-trip guide](guides/catalog-round-trip.md
 
 ## Stale generated files remain
 
-Default exports do not delete them. Review an intentional `--prune --dry-run`
+Default exports do not delete them. Preview deletion with `--prune --dry-run`
 before using `--prune`, or export into a clean dedicated build directory. Prune
-may remove handwritten files within managed scope. Do not mix ownership.
+may remove handwritten files within managed scope. Keep handwritten files outside
+managed output directories.
 
 ## dbt cannot find generated models or macros
 

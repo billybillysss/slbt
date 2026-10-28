@@ -5,8 +5,7 @@
 In slbt, a semantic definition combines **how a value is derived** with **what
 it means**: expressions, upstream relations, descriptions, types, tests,
 constraints, ownership and model configuration. Layer/domain classifications
-organize those definitions. The semantic layer is built, not hidden behind a
-generated query you cannot review.
+organize those definitions. You can review the generated SQL before execution.
 
 This is not a metrics-serving API, a natural-language query engine, or dbt's
 Semantic Layer/MetricFlow. slbt does not currently provide a metric query service,
@@ -44,5 +43,5 @@ optimization skips affected models unchanged with a reason.
 
 An external assistant can read scoped JSON and propose canonical YAML. Review the
 YAML diff, inspect expanded SQL, preview optimization, and execute dbt tests before
-accepting it. Keeping definitions and generated SQL visible removes an opaque
-handoff; it does not remove the need for domain expertise or data testing.
+accepting it. Reviewing the definitions and generated SQL makes the proposed logic
+visible. Domain expertise and data testing are still required.

@@ -116,7 +116,7 @@ def dbt_outputs(configuration, subpath=None):
         files[path] = content
     for model in project.models:
         folder = PurePosixPath(model.relative.parent.as_posix())
-        put(PurePosixPath("models") / folder / (model.name + ".sql"), render_model(model, project.macros, pretty=project.authored["dbt"].get("format", "pretty") != "compact", preserve_source=project.authored["dbt"].get("format") == "source", preserve_macros=project.optimization["preserve_marco"]).encode())
+        put(PurePosixPath("models") / folder / (model.name + ".sql"), render_model(model, project.macros, pretty=project.authored["dbt"].get("format", "pretty") != "compact", preserve_source=project.authored["dbt"].get("format") == "source", preserve_macros=project.optimization["preserve_macro"]).encode())
         target = PurePosixPath("models") / folder / ((folder.name if folder.name else "models") + ".yml")
         schemas.setdefault(target, {"version": 2}).setdefault("models", []).append(properties(model))
         if model.snapshot:

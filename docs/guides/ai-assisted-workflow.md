@@ -2,8 +2,8 @@
 
 slbt does not include an LLM client or autonomous agent. Use an external AI
 assistant to propose logic; slbt provides inspectable files, validation, SQL
-inspection, logical optimization and machine-readable context. Human review and
-dbt data tests remain the acceptance gate.
+inspection, logical optimization and machine-readable context. Review the changes
+and run dbt data tests before accepting them.
 
 ## 1. Prepare bounded context
 
@@ -58,9 +58,8 @@ uv run slbt --project-dir examples/jaffle_shop optimize -s gld_payment_method_su
 ```
 
 Review aggregation grain, joins, filters, null handling, units and dependency
-coverage. Inspection is offline and read-only. Runtime macros may prevent it;
-use controlled dbt compilation/execution and adapter-specific tests instead of
-claiming those calls were expanded offline.
+coverage. Inspection is offline and read-only. If runtime macros prevent offline
+inspection, use controlled dbt compilation/execution and adapter-specific tests.
 
 `optimize --dry-run` reports proposed file actions, not a full diff. If you choose
 to write an optimization, do so on the review branch, inspect the resulting Git

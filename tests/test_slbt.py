@@ -151,7 +151,7 @@ def test_yaml_on_is_text_and_literals_are_finite(root):
 
 
 @pytest.mark.parametrize("change", [
-    {"model_defaults": {}}, {"optimization": {"preserve_macro": True}},
+    {"model_defaults": {}}, {"optimization": {"preserve_macro": "true"}},
     {"optimization": {"preserve_macros": True}}, {"optimization": {"format": "source"}},
     {"optimization": {"enrich": "false"}}, {"dbt": {"path": "dbt/", "default_configs": None}},
     {"model_path": "../models"}, {"model_path": "C:/models"}, {"macro_path": "macros\\"},
@@ -161,6 +161,74 @@ def test_project_configuration_rejects_invalid(root, change):
     edit(root / "slbt_project.yaml", **change)
     with pytest.raises(ValueError):
         project(root)
+
+
+def test_initialized_project_uses_correct_macro_spelling(root):
+    settings = load_yaml(root / "slbt_project.yaml")["optimization"]
+    assert settings["preserve_macro"] is True
+    assert "preserve_marco" not in settings
+
+
+@pytest.mark.parametrize("key", ["preserve_macro", "preserve_marco"])
+@pytest.mark.parametrize("preserve", [True, False])
+def test_macro_configuration_spelling_and_dbt_export(root, key, preserve):
+    edit(root / "slbt_project.yaml", optimization={key: preserve})
+    (root / "macros/math.sql").write_text("{% macro round_value(value) %}ROUND({{ value }}, 2){% endmacro %}")
+    resource(root, [model(output={"sql": "SELECT round_value(1) AS id", "columns": {"id": {}}})])
+    before = baseline(root)
+    loaded = project(root)
+    assert loaded.optimization["preserve_macro"] is preserve
+    assert "preserve_marco" not in loaded.optimization
+    assert (b"round_value" in dbt_outputs(loaded)["models/example.sql"]) is preserve
+    assert baseline(root) == before
+
+
+@pytest.mark.parametrize("key", ["preserve_macro", "preserve_marco"])
+@pytest.mark.parametrize("value", ["false", 0, 1, None])
+def test_macro_configuration_requires_boolean(root, key, value):
+    edit(root / "slbt_project.yaml", optimization={key: value})
+    with pytest.raises(SpecError, match=rf"optimization\.{key}: expected a boolean"):
+        project(root)
+
+
+@pytest.mark.parametrize("legacy", [True, False])
+def test_macro_configuration_rejects_both_spellings(root, legacy):
+    edit(root / "slbt_project.yaml", optimization={"preserve_macro": True, "preserve_marco": legacy})
+    with pytest.raises(SpecError, match="not both"):
+        project(root)
+
+
+@pytest.mark.parametrize("option", ["preserve_macro", "preserve_marco", "--preserve-macro", "--preserve-marco"])
+@pytest.mark.parametrize("preserve", [True, False])
+def test_macro_option_spellings_override_configuration(root, option, preserve):
+    edit(root / "slbt_project.yaml", optimization={"preserve_macro": not preserve})
+    (root / "macros/math.sql").write_text("{% macro round_value(value) %}ROUND({{ value }}, 2){% endmacro %}")
+    resource(root, [model(output={"sql": "SELECT round_value(1 + 0) AS id", "columns": {"id": {}}})])
+    before = baseline(root)
+    if option.startswith("--"):
+        arguments = ["--project-dir", str(root), "optimize", option, str(preserve).lower()]
+        runner = CliRunner()
+        preview = runner.invoke(cli, [*arguments, "--dry-run"])
+        assert preview.exit_code == 0, preview.output
+        assert baseline(root) == before
+        result = runner.invoke(cli, arguments)
+        assert result.exit_code == 0, result.output
+    else:
+        optimize_project(project(root), **{option: preserve}, dry_run=True)
+        assert baseline(root) == before
+        optimize_project(project(root), **{option: preserve})
+    loaded = project(root)
+    saved = next(item for item in loaded.models if item.name == "example")
+    tree = transformation_tree(saved.output, Compiler(loaded.macros, preserve_macro=True), saved.name)
+    assert any(call.name.lower() == "round_value" for call in tree.find_all(exp.Anonymous)) is preserve
+
+
+@pytest.mark.parametrize("legacy", [True, False])
+def test_macro_python_api_rejects_both_spellings_without_writes(root, legacy):
+    before = baseline(root)
+    with pytest.raises(SpecError, match="not both"):
+        optimize_project(project(root), preserve_macro=True, preserve_marco=legacy)
+    assert baseline(root) == before
 
 
 @pytest.mark.parametrize("path_type", [Path, str])
@@ -820,17 +888,17 @@ def test_generated_step_and_alias_share_name_skipping_authored_steps(root, prese
                 "columns": {"id": {"description": "Keep the interface"}}},
     )])
     before = path.read_bytes()
-    preview = optimize_project(project(root), preserve_marco=preserve_macro, dry_run=True)
+    preview = optimize_project(project(root), preserve_macro=preserve_macro, dry_run=True)
     assert preview.changed == [path]
     assert path.read_bytes() == before
-    optimize_project(project(root), preserve_marco=preserve_macro)
+    optimize_project(project(root), preserve_macro=preserve_macro)
     saved = load_yaml(path)["tables"][0]
     assert list(saved["steps"]) == ["b"]
     assert saved["steps"]["b"]["from"]["alias"] == "benchmark"
     assert saved["output"]["from"]["alias"] == "candidate"
     assert saved["output"]["joins"] == [{"step": "b", "type": "inner", "on": "b._col_0 < candidate.id"}]
     assert saved["output"]["columns"]["id"]["description"] == "Keep the interface"
-    assert optimize_project(project(root), preserve_marco=preserve_macro).changed == []
+    assert optimize_project(project(root), preserve_macro=preserve_macro).changed == []
 
 
 def test_generated_relation_alias_skips_authored_alias_and_updates_macro_argument(root):
@@ -839,7 +907,7 @@ def test_generated_relation_alias_skips_authored_alias_and_updates_macro_argumen
         "sql": "SELECT identity(items.id) AS id FROM ref.items JOIN ref.other AS a ON items.id = a.id",
         "columns": {"id": {}},
     })])
-    optimize_project(project(root), preserve_marco=True)
+    optimize_project(project(root), preserve_macro=True)
     saved = project(root).models[0]
     assert saved.output["from"] == {"ref": "items", "alias": "b"}
     assert saved.output["joins"] == [{"ref": "other", "alias": "a", "type": "inner", "on": "a.id = b.id"}]
@@ -879,11 +947,11 @@ def test_extracted_step_uses_authored_subquery_alias_without_redundant_alias(roo
         "customer_id": {"description": "One row per paid customer/order pair"},
     }})])
     before = path.read_bytes()
-    preview = optimize_project(project(root), preserve_marco=preserve_macro, dry_run=True)
+    preview = optimize_project(project(root), preserve_macro=preserve_macro, dry_run=True)
     assert preview.changed == [path]
     assert path.read_bytes() == before
     compiled_before = dbt_outputs(project(root))["models/example.sql"].decode()
-    optimize_project(project(root), preserve_marco=preserve_macro)
+    optimize_project(project(root), preserve_macro=preserve_macro)
     saved = project(root).models[0]
     assert list(saved.steps) == ["paid"]
     assert saved.steps["paid"]["from"] == {"ref": "gld_orders", "alias": "o"}
@@ -903,7 +971,7 @@ def test_extracted_step_uses_authored_subquery_alias_without_redundant_alias(roo
         expected = connection.execute(render(compiled_before)).fetchall()
         assert sorted(expected) == [(1,), (1,), (3,)]
         assert sorted(connection.execute(render(compiled_after)).fetchall()) == sorted(expected)
-    assert optimize_project(project(root), preserve_marco=preserve_macro).changed == []
+    assert optimize_project(project(root), preserve_macro=preserve_macro).changed == []
 
 
 def test_extracted_named_steps_keep_names_in_nested_dependencies(root):
@@ -1053,7 +1121,7 @@ def test_optimizer_skips_runtime_without_writes(root, preserve_macro, enrich):
     (root / "macros/runtime.sql").write_text("{% macro runtime(value) %}{{ adapter.quote(value) }}{% endmacro %}")
     resource(root, [model(output={"sql": "SELECT runtime(1) AS id", "columns": {"id": {}}})])
     before = baseline(root)
-    result = optimize_project(project(root), preserve_marco=preserve_macro, enrich=enrich)
+    result = optimize_project(project(root), preserve_macro=preserve_macro, enrich=enrich)
     assert result.skipped == {"example": "macro 'runtime' requires dbt runtime and cannot be expanded offline"}
     assert result.changed == []
     assert result.graphs == {}
@@ -1134,7 +1202,7 @@ def test_optimizer_preserves_macros_with_visible_query_semantics(root, expressio
         "{% macro plus_one(value) %}{{ value }} + 1{% endmacro %}"
     )
     resource(root, [model(output={"sql": f"SELECT {expression} AS id FROM ref.items AS v", "columns": {"id": {}}})])
-    result = optimize_project(project(root), preserve_marco=True)
+    result = optimize_project(project(root), preserve_macro=True)
     assert not result.skipped
     rewritten = project(root)
     saved = rewritten.models[0]
@@ -1157,7 +1225,7 @@ def test_optimizer_rejects_macros_hiding_query_semantics_or_columns(root, body, 
     resource(root, [model(output={"sql": f"SELECT hidden({argument}) AS id FROM ref.items AS v", "columns": {"id": {}}})])
     before = baseline(root)
     with pytest.raises(SpecError, match=reason):
-        optimize_project(project(root), preserve_marco=True)
+        optimize_project(project(root), preserve_macro=True)
     assert baseline(root) == before
 
 
@@ -1179,14 +1247,15 @@ def test_cli_selection_boolean_values_discovery_and_init(root, monkeypatch):
     runner = CliRunner()
     for arguments in [
         ["validate"], ["--help"],
-        ["optimize", "-s", "example", "second", "--preserve-marco", "true", "--enrich", "false", "--dry-run"],
+        ["optimize", "-s", "example", "second", "--preserve-macro", "true", "--enrich", "false", "--dry-run"],
         ["enrich", "-s", "example", "-s", "second", "--dry-run"],
         ["export", "catalog", "--catalog", "catalog", "--dry-run"],
     ]:
         result = runner.invoke(cli, ["--project-dir", str(root), *arguments])
         assert result.exit_code == 0, result.output
     assert runner.invoke(cli, ["--project-dir", str(root), "optimize", "-s"]).exit_code == 2
-    assert runner.invoke(cli, ["--project-dir", str(root), "optimize", "--preserve-marco"]).exit_code == 2
+    for option in ("--preserve-macro", "--preserve-marco"):
+        assert runner.invoke(cli, ["--project-dir", str(root), "optimize", option]).exit_code == 2
     monkeypatch.chdir(root / "models")
     monkeypatch.delenv("slbt_PROJECT_DIR", raising=False)
     assert resolve_project() == root / "slbt_project.yaml"

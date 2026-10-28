@@ -96,7 +96,7 @@ def test_marts_match_independent_jaffle_shop_calculations(loaded, connection):
 def test_gold_optimizer_rewrites_preserve_results_and_metadata(examples, loaded, connection):
     destination = examples
     copied = Project(destination / "slbt_project.yaml")
-    result = optimize_project(copied, models=list(OPTIMIZATION_MODELS), preserve_marco=False)
+    result = optimize_project(copied, models=list(OPTIMIZATION_MODELS), preserve_macro=False)
     assert len(result.changed) == 7
     rewritten = Project(copied.path)
     originals = {model.name: model for model in loaded.models}
@@ -118,7 +118,7 @@ def test_gold_optimizer_rewrites_preserve_results_and_metadata(examples, loaded,
 def test_macro_arguments_optimization_preserves_results(examples, loaded, connection, preserve_macro):
     destination = examples
     copied = Project(destination / "slbt_project.yaml")
-    result = optimize_project(copied, models=["gld_macro_arguments"], preserve_marco=preserve_macro)
+    result = optimize_project(copied, models=["gld_macro_arguments"], preserve_macro=preserve_macro)
     assert len(result.changed) == 1
     rewritten = Project(copied.path)
     model = next(model for model in rewritten.models if model.name == "gld_macro_arguments")
@@ -135,14 +135,14 @@ def test_full_project_optimization_skips_runtime_and_preserves_results(examples,
     destination = examples
     copied = Project(destination / "slbt_project.yaml")
     before = {path: path.read_bytes() for path in (destination / "models").rglob("*.yml")}
-    preview = optimize_project(copied, dry_run=True, preserve_marco=preserve_macro)
+    preview = optimize_project(copied, dry_run=True, preserve_macro=preserve_macro)
     assert preview.skipped == {"gld_customer_attribute_hash": "macro 'hash_relation_attributes' requires dbt runtime and cannot be expanded offline"}
     assert len(preview.changed) == 14
     untouched = [destination / "models" / name for name in ("brz/customers.yml", "brz/orders.yml", "brz/payments.yml", "slv/customers.yml", "slv/orders.yml", "gld/payment_method_summary.yml")]
     assert not set(untouched) & set(preview.changed)
     assert set(preview.graphs) == set(OFFLINE_MODELS)
     assert {path: path.read_bytes() for path in before} == before
-    result = optimize_project(copied, preserve_marco=preserve_macro)
+    result = optimize_project(copied, preserve_macro=preserve_macro)
     assert result.skipped == preview.skipped
     assert result.changed == preview.changed
     assert all(path.read_bytes() == before[path] for path in untouched)

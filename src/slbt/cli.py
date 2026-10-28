@@ -163,13 +163,13 @@ def import_command(ctx, path, catalog, dry_run):
 @cli.command("optimize")
 @click.option("--select", "-s", cls=Names, multiple=True)
 @click.option("--format", type=click.Choice(["pretty", "compact"]))
-@click.option("--preserve-marco", type=click.BOOL)
+@click.option("--preserve-macro", "--preserve-marco", type=click.BOOL)
 @click.option("--enrich", "enrich_enabled", type=click.BOOL)
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
 @guarded
-def optimize_command(ctx, select, format, preserve_marco, enrich_enabled, dry_run):
-    result = optimize_project(project(ctx), models=names(select) or None, format=format, preserve_marco=preserve_marco, enrich=enrich_enabled, dry_run=dry_run)
+def optimize_command(ctx, select, format, preserve_macro, enrich_enabled, dry_run):
+    result = optimize_project(project(ctx), models=names(select) or None, format=format, preserve_macro=preserve_macro, enrich=enrich_enabled, dry_run=dry_run)
     for name, reason in result.skipped.items():
         click.echo(f"Skipped {name}: {reason}. Model unchanged.", err=True)
     summary(result.changed, dry_run)

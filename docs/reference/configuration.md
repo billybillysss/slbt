@@ -12,7 +12,7 @@ catalog_path: catalog/
 optimization:
   dialect: duckdb
   format: pretty
-  preserve_marco: true
+  preserve_macro: true
   enrich: false
 dbt:
   path: dbt/
@@ -53,8 +53,11 @@ exist; `init` creates a smaller runnable project. See the complete
   already-authored dialect-specific expressions. The initializer uses `spark`;
   the Jaffle Shop demo explicitly uses `duckdb`.
 - `optimization.format` accepts `pretty` or `compact`.
-- **`preserve_marco` is the current public spelling**, including the CLI option
-  `--preserve-marco`. Do not substitute `preserve_macro` or `preserve_macros`.
+- `optimization.preserve_macro` defaults to `true` and keeps static macro calls.
+  Use `--preserve-macro true|false` to override it. The misspelled `preserve_marco`
+  and `--preserve-marco` remain supported as legacy aliases. Use only one spelling
+  in configuration; specifying both keys is an error. `preserve_macros` is not a
+  supported project setting.
 - `optimization.enrich` controls metadata enrichment during optimization.
 - `dbt.format` accepts `pretty`, `compact` or `source`. `source` attempts to
   preserve eligible raw SQL formatting while lowering logical relations; it is
@@ -91,8 +94,8 @@ command requires both layers; it is not a general-purpose registry generator.
 Use portable forward slashes in configuration. Input paths cannot be absolute or
 traverse outside their permitted roots. Output paths can use permitted relative
 destinations, but inputs and generated outputs must not overlap. Unsafe symlinks
-and supported junction checks are rejected. These checks are safeguards, not an
-OS sandbox; see [security](../../SECURITY.md).
+and junctions detected by the platform are rejected. These checks are safeguards,
+not an OS sandbox; see [security](../../SECURITY.md).
 
 Each catalog has a name, model/source sheets and optional macro sheets.
 `include.models` and `include.macros` scope files; sheet `includes` selectors

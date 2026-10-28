@@ -2,9 +2,10 @@
 
 ## Install from a checkout
 
-Use Git, Python 3.11+ and [uv](https://docs.astral.sh/uv/). Run these commands from
-the repository root on Windows, macOS or Linux; CI coverage is described in
-[compatibility](compatibility.md). Dependency installation requires network access.
+Use Git, Python 3.11+ and [uv](https://docs.astral.sh/uv/) on Windows, macOS or Linux.
+Clone the repository, then run the remaining commands from its root. See
+[compatibility](compatibility.md) for CI coverage. Dependency installation requires
+network access.
 
 ```sh
 git clone https://github.com/billybillysss/slbt.git
@@ -17,7 +18,7 @@ uv run slbt --help
 The development environment includes pytest and the DuckDB adapter used by the
 demo and handwritten integration fixture. A compiler-only
 environment can use `uv sync --locked --no-dev`; it will not include the demo's
-dbt adapter or pytest. There is no requirement here to install from PyPI.
+dbt adapter or pytest. These instructions install from source, not PyPI.
 
 ## Inspect without a database
 

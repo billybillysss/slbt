@@ -40,7 +40,6 @@ example fixture inclusion. Never infer installability solely from editable tests
 - Check repository URLs, installation instructions and release notes. Do not add
   package/download badges before a real release exists.
 
-Only after approval should maintainers choose a tag, publish artifacts and link
-the release notes. That external publishing step is deliberately not automated
-by this change. After release, move approved Unreleased notes to a dated version
-section and leave a new Unreleased section.
+After maintainer approval, choose a tag, publish artifacts and link the release
+notes. Publishing is not automated. After release, move approved Unreleased notes
+to a dated version section and leave a new Unreleased section.

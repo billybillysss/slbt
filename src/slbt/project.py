@@ -332,7 +332,7 @@ def parse_model(path, root, rules, macros, overrides=None, *, data=None):
 
 def optimization_settings(value):
     value = mapping(value, "optimization")
-    fields(value, {"dialect", "format", "preserve_marco", "enrich"}, set(), "optimization")
+    fields(value, {"dialect", "format", "preserve_macro", "preserve_marco", "enrich"}, set(), "optimization")
     dialect = text(value.get("dialect", "spark"), "optimization.dialect")
     try:
         Dialect.get_or_raise(dialect)
@@ -341,13 +341,16 @@ def optimization_settings(value):
     format = text(value.get("format", "pretty"), "optimization.format")
     if format not in ("pretty", "compact"):
         raise SpecError("optimization.format: expected pretty or compact")
-    preserve_macro = value.get("preserve_marco", True)
+    if "preserve_macro" in value and "preserve_marco" in value:
+        raise SpecError("optimization: use preserve_macro or its legacy alias preserve_marco, not both")
+    key = "preserve_marco" if "preserve_marco" in value else "preserve_macro"
+    preserve_macro = value.get(key, True)
     if type(preserve_macro) is not bool:
-        raise SpecError("optimization.preserve_marco: expected a boolean")
+        raise SpecError(f"optimization.{key}: expected a boolean")
     enrich = value.get("enrich", False)
     if type(enrich) is not bool:
         raise SpecError("optimization.enrich: expected a boolean")
-    return {"dialect": dialect, "format": format, "preserve_marco": preserve_macro, "enrich": enrich}
+    return {"dialect": dialect, "format": format, "preserve_macro": preserve_macro, "enrich": enrich}
 
 
 def load_project(path: Path, overrides: dict | None = None) -> Project:
