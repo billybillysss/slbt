@@ -93,6 +93,8 @@ class Registry:
         return re.sub(r"(\{%[-+]?\s*)endtest(\s*[-+]?%\})", r"\1endmacro\2", value)
 
     def add_file(self, path, content):
+        # Keep definitions consistent with text-mode reads and Excel/XML newlines.
+        content = content.replace("\r\n", "\n").replace("\r", "\n")
         try:
             tree = self.environment.parse(self.jinja(content))
             blocks = list(BLOCK.finditer(content))

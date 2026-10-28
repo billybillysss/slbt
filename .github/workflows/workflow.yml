@@ -10,7 +10,11 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
   publish:
+    needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,9 +45,6 @@ jobs:
               raise SystemExit(f"Release tag {actual!r} must match package version {expected!r}")
           print(f"Verified release tag {actual}")
           PY
-
-      - name: Run tests
-        run: uv run pytest
 
       - name: Build distributions
         run: uv build --no-sources

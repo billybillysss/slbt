@@ -1,8 +1,9 @@
 name: Validate and build
 
 on:
-  - push
-  - pull_request
+  push:
+  pull_request:
+  workflow_call:
 
 permissions:
   contents: read

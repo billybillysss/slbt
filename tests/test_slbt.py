@@ -578,6 +578,36 @@ def test_macro_review_preserves_siblings_and_checks_unselected_models(root):
     assert "+ 2" in macro.read_text()
 
 
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"], ids=["lf", "crlf", "cr"])
+def test_multiline_macro_catalog_normalizes_line_endings_and_round_trips(root, newline):
+    macro = root / "macros/math.sql"
+    expression = "{% macro plus_one(value) %}\n{{ value }} + 1\n{% endmacro %}"
+    content = "-- surrounding\n" + expression + "\n{% macro sibling() %}2{% endmacro %}\n"
+    original = content.replace("\n", newline).encode("utf-8")
+    macro.write_bytes(original)
+    resource(root, [model(output={"sql": "SELECT plus_one(1) AS id", "columns": {"id": {}}})])
+    config = load_yaml(root / "slbt_project.yaml")
+    config["catalog"][0]["macros"] = [{"name": "Macros"}]
+    (root / "slbt_project.yaml").write_bytes(dump_yaml(config))
+    loaded = project(root)
+    assert loaded.macros.definitions["plus_one"].expression == expression
+    assert type(loaded.macros)(macro.parent, {macro: original}).definitions["plus_one"].expression == expression
+    path = book(root)
+    workbook = load_workbook(path)
+    try:
+        row = next(r for r in workbook["Macros"].iter_rows(min_row=2) if r[1].value == "plus_one")
+        assert row[2].value == expression
+    finally:
+        workbook.close()
+    assert import_catalog(loaded, path, dry_run=True) == []
+    assert import_catalog(loaded, path) == []
+    assert macro.read_bytes() == original
+    workbook_edit(path, "Macros", None, "plus_one", "Expression", expression.replace("+ 1", "+ 2"))
+    import_catalog(project(root), path)
+    assert macro.read_text(encoding="utf-8") == content.replace("+ 1", "+ 2")
+    assert project(root).macros.definitions["plus_one"].expression == expression.replace("+ 1", "+ 2")
+
+
 def test_json_semantic_resolved_read_only_and_runtime_definitions(examples):
     loaded = project(examples)
     files = catalog_outputs(loaded, choose(loaded)[0], "json")
