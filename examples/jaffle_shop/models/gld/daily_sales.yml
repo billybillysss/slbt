@@ -1,0 +1,37 @@
+version: 1
+layer: gold
+domain: sales
+tables:
+  - name: gld_daily_sales
+    description: Daily order and payment totals split by lifecycle status, not net recognized revenue.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns:
+              - order_date
+              - status
+    output:
+      from:
+        ref: gld_orders
+        alias: o
+      group_by:
+        - o.order_date
+        - o.status
+      columns:
+        order_date:
+          expression: o.order_date
+          data_type: date
+        status:
+          expression: o.status
+          data_type: varchar
+          config:
+            meta:
+              role: dimension
+        order_count:
+          expression: COUNT(*)
+          data_type: bigint
+        payment_total:
+          expression: CAST(round_money(SUM(o.amount)) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)
+          data_tests:
+            - nonnegative

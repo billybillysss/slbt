@@ -1,0 +1,2566 @@
+{
+  "format": "slbt.catalog",
+  "format_version": 1,
+  "representation": "resolved",
+  "catalog": "catalog",
+  "dialect": "duckdb",
+  "models": [
+    {
+      "version": 1,
+      "name": "brz_customers",
+      "description": "Faithful mapping of the application customer source.",
+      "layer": "bronze",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT c.id AS \"id\", c.first_name AS \"first_name\", c.last_name AS \"last_name\" FROM \"source\".\"jaffle_shop\".\"customers\" AS \"c\"",
+        "columns": [
+          {
+            "name": "id",
+            "expression": "c.id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.customers",
+                  "column": "id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "first_name",
+            "expression": "c.first_name",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.customers",
+                  "column": "first_name"
+                }
+              ]
+            }
+          },
+          {
+            "name": "last_name",
+            "expression": "c.last_name",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.customers",
+                  "column": "last_name"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "source.jaffle_shop.customers",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "brz_orders",
+      "description": "Faithful mapping of application orders without invented order amounts.",
+      "layer": "bronze",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT o.id AS \"id\", o.user_id AS \"user_id\", o.order_date AS \"order_date\", o.status AS \"status\" FROM \"source\".\"jaffle_shop\".\"orders\" AS \"o\"",
+        "columns": [
+          {
+            "name": "id",
+            "expression": "o.id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.orders",
+                  "column": "id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user_id",
+            "expression": "o.user_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.orders",
+                  "column": "user_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_date",
+            "expression": "o.order_date",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.orders",
+                  "column": "order_date"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "expression": "o.status",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.orders",
+                  "column": "status"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "source.jaffle_shop.orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "brz_payments",
+      "description": "Preserve original payment amounts in cents.",
+      "layer": "bronze",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT p.id AS \"id\", p.order_id AS \"order_id\", p.payment_method AS \"payment_method\", p.amount AS \"amount\" FROM \"source\".\"jaffle_shop\".\"payments\" AS \"p\"",
+        "columns": [
+          {
+            "name": "id",
+            "expression": "p.id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.payments",
+                  "column": "id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_id",
+            "expression": "p.order_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.payments",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "payment_method",
+            "expression": "p.payment_method",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.payments",
+                  "column": "payment_method"
+                }
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "expression": "p.amount",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "source.jaffle_shop.payments",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "source.jaffle_shop.payments",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_customer_cohorts",
+      "description": "Disjoint customer cohorts using raw CTEs, INTERSECT, EXCEPT and UNION.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "WITH completed AS (SELECT o.customer_id FROM ref.slv_orders AS o WHERE o.status = 'completed'), returned AS (SELECT o.customer_id FROM ref.slv_orders AS o WHERE o.status = 'returned'), both_statuses AS (SELECT c.customer_id FROM completed AS c INTERSECT SELECT r.customer_id FROM returned AS r), completed_only AS (SELECT c.customer_id FROM completed AS c EXCEPT SELECT r.customer_id FROM returned AS r) SELECT c.customer_id, 'completed_only' AS cohort FROM completed_only AS c UNION SELECT b.customer_id, 'completed_and_returned' AS cohort FROM both_statuses AS b",
+        "columns": [
+          {
+            "name": "customer_id",
+            "data_type": "bigint",
+            "expression": "c.customer_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_orders",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "cohort",
+            "data_type": "varchar",
+            "expression": "'completed_only'",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": []
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.slv_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_join_counts",
+      "description": "Compare structured inner, left, right, full and cross joins between orders and customers.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [
+        {
+          "name": "cross_rows",
+          "sql": "SELECT 'cross' AS \"join_type\", COUNT(*) AS \"row_count\" FROM \"ref\".\"slv_orders\" AS \"o\" CROSS JOIN \"ref\".\"slv_customers\" AS \"c\"",
+          "columns": [
+            {
+              "name": "join_type",
+              "expression": "'cross'",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "row_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "full_rows",
+          "sql": "SELECT 'full' AS \"join_type\", COUNT(*) AS \"row_count\" FROM \"ref\".\"slv_orders\" AS \"o\" FULL JOIN \"ref\".\"slv_customers\" AS \"c\" ON o.customer_id = c.customer_id",
+          "columns": [
+            {
+              "name": "join_type",
+              "expression": "'full'",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "row_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "inner_rows",
+          "sql": "SELECT 'inner' AS \"join_type\", COUNT(*) AS \"row_count\" FROM \"ref\".\"slv_orders\" AS \"o\" INNER JOIN \"ref\".\"slv_customers\" AS \"c\" ON o.customer_id = c.customer_id",
+          "columns": [
+            {
+              "name": "join_type",
+              "expression": "'inner'",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "row_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "left_rows",
+          "sql": "SELECT 'left' AS \"join_type\", COUNT(*) AS \"row_count\" FROM \"ref\".\"slv_orders\" AS \"o\" LEFT JOIN \"ref\".\"slv_customers\" AS \"c\" ON o.customer_id = c.customer_id",
+          "columns": [
+            {
+              "name": "join_type",
+              "expression": "'left'",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "row_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "right_rows",
+          "sql": "SELECT 'right' AS \"join_type\", COUNT(*) AS \"row_count\" FROM \"ref\".\"slv_orders\" AS \"o\" RIGHT JOIN \"ref\".\"slv_customers\" AS \"c\" ON o.customer_id = c.customer_id",
+          "columns": [
+            {
+              "name": "join_type",
+              "expression": "'right'",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "row_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            }
+          ]
+        }
+      ],
+      "output": {
+        "sql": "SELECT i.join_type, i.row_count FROM step.inner_rows AS i UNION ALL SELECT l.join_type, l.row_count FROM step.left_rows AS l UNION ALL SELECT r.join_type, r.row_count FROM step.right_rows AS r UNION ALL SELECT f.join_type, f.row_count FROM step.full_rows AS f UNION ALL SELECT c.join_type, c.row_count FROM step.cross_rows AS c",
+        "columns": [
+          {
+            "name": "join_type",
+            "data_type": "varchar",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "expression": "i.join_type",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.cross_rows",
+                  "column": "join_type"
+                },
+                {
+                  "relation": "step.full_rows",
+                  "column": "join_type"
+                },
+                {
+                  "relation": "step.inner_rows",
+                  "column": "join_type"
+                },
+                {
+                  "relation": "step.left_rows",
+                  "column": "join_type"
+                },
+                {
+                  "relation": "step.right_rows",
+                  "column": "join_type"
+                }
+              ]
+            }
+          },
+          {
+            "name": "row_count",
+            "data_type": "bigint",
+            "data_tests": [
+              "nonnegative"
+            ],
+            "expression": "i.row_count",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.cross_rows",
+                  "column": "row_count"
+                },
+                {
+                  "relation": "step.full_rows",
+                  "column": "row_count"
+                },
+                {
+                  "relation": "step.inner_rows",
+                  "column": "row_count"
+                },
+                {
+                  "relation": "step.left_rows",
+                  "column": "row_count"
+                },
+                {
+                  "relation": "step.right_rows",
+                  "column": "row_count"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.slv_customers",
+          "included": true
+        },
+        {
+          "relation": "ref.slv_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_macro_arguments",
+      "description": "Macro defaults, positional/named arguments, arrays, DuckDB maps and a nested wrapper.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT o.order_id AS \"order_id\", ROUND(o.amount, 2) AS \"default_rounding\", ROUND(o.amount, 1) AS \"positional_rounding\", ROUND(o.amount, 1) AS \"named_rounding\", ROUND(o.amount, 1) AS \"alternate_named_rounding\", ROUND(COALESCE(o.amount, 0) + 1, 1) AS \"rounded_with_fee\" FROM \"ref\".\"gld_orders\" AS \"o\"",
+        "columns": [
+          {
+            "name": "order_id",
+            "expression": "o.order_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "default_rounding",
+            "expression": "ROUND(o.amount, 2)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "positional_rounding",
+            "expression": "ROUND(o.amount, 1)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "named_rounding",
+            "expression": "ROUND(o.amount, 1)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "alternate_named_rounding",
+            "expression": "ROUND(o.amount, 1)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "rounded_with_fee",
+            "expression": "ROUND(COALESCE(o.amount, 0) + 1, 1)",
+            "description": "Add a fictional one-unit fee to demonstrate array/map macro arguments; not used by the marts.",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_customer_attribute_hash",
+      "description": "Adapter introspection deferred to dbt; offline inspect/optimize reject this runtime-only model.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT c.customer_id AS \"customer_id\", HASH_RELATION_ATTRIBUTES(ref.slv_customers, table_alias => 'c', exclude => ['customer_id']) AS \"attribute_hash\" FROM \"ref\".\"slv_customers\" AS \"c\"",
+        "columns": [
+          {
+            "name": "customer_id",
+            "expression": "c.customer_id",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_customers",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "attribute_hash",
+            "expression": "HASH_RELATION_ATTRIBUTES(ref.slv_customers, table_alias => 'c', exclude => ['customer_id'])",
+            "data_type": "varchar",
+            "lineage": {
+              "status": "deferred",
+              "upstream_columns": []
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.slv_customers",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "deferred",
+        "macro_refs": [
+          "hash_relation_attributes"
+        ]
+      },
+      "macro_refs": [
+        "hash_relation_attributes"
+      ]
+    },
+    {
+      "version": 1,
+      "name": "gld_customers",
+      "description": "Classic Jaffle Shop customer mart; all customers retained, all order statuses counted.",
+      "constraints": [
+        {
+          "type": "primary_key",
+          "columns": [
+            "customer_id"
+          ]
+        }
+      ],
+      "layer": "gold",
+      "domain": "sales",
+      "config": {
+        "contract": {
+          "enforced": true
+        },
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "sales"
+        }
+      },
+      "steps": [
+        {
+          "name": "customer_orders",
+          "sql": "SELECT o.customer_id AS \"customer_id\", MIN(o.order_date) AS \"first_order\", MAX(o.order_date) AS \"most_recent_order\", COUNT(*) AS \"number_of_orders\", CAST(SUM(o.amount) AS DECIMAL(12, 2)) AS \"customer_lifetime_value\" FROM \"ref\".\"gld_orders\" AS \"o\" GROUP BY o.customer_id",
+          "columns": [
+            {
+              "name": "customer_id",
+              "expression": "o.customer_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "customer_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "first_order",
+              "expression": "MIN(o.order_date)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "order_date"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "most_recent_order",
+              "expression": "MAX(o.order_date)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "order_date"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "number_of_orders",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "customer_lifetime_value",
+              "expression": "CAST(SUM(o.amount) AS DECIMAL(12, 2))",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "amount"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "output": {
+        "sql": "SELECT c.customer_id AS \"customer_id\", c.first_name AS \"first_name\", c.last_name AS \"last_name\", o.first_order AS \"first_order\", o.most_recent_order AS \"most_recent_order\", COALESCE(o.number_of_orders, CAST(0 AS BIGINT)) AS \"number_of_orders\", CAST(COALESCE(o.customer_lifetime_value, 0) AS DECIMAL(12, 2)) AS \"customer_lifetime_value\" FROM \"ref\".\"slv_customers\" AS \"c\" LEFT JOIN \"step\".\"customer_orders\" AS \"o\" ON c.customer_id = o.customer_id",
+        "columns": [
+          {
+            "name": "customer_id",
+            "expression": "c.customer_id",
+            "data_type": "bigint",
+            "description": "Application customer identifier.",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_customers",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "first_name",
+            "expression": "c.first_name",
+            "data_type": "varchar",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_customers",
+                  "column": "first_name"
+                }
+              ]
+            }
+          },
+          {
+            "name": "last_name",
+            "expression": "c.last_name",
+            "data_type": "varchar",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_customers",
+                  "column": "last_name"
+                }
+              ]
+            }
+          },
+          {
+            "name": "first_order",
+            "expression": "o.first_order",
+            "data_type": "date",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.customer_orders",
+                  "column": "first_order"
+                }
+              ]
+            }
+          },
+          {
+            "name": "most_recent_order",
+            "expression": "o.most_recent_order",
+            "data_type": "date",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.customer_orders",
+                  "column": "most_recent_order"
+                }
+              ]
+            }
+          },
+          {
+            "name": "number_of_orders",
+            "expression": "COALESCE(o.number_of_orders, CAST(0 AS BIGINT))",
+            "data_type": "bigint",
+            "data_tests": [
+              "nonnegative"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.customer_orders",
+                  "column": "number_of_orders"
+                }
+              ]
+            }
+          },
+          {
+            "name": "customer_lifetime_value",
+            "expression": "CAST(COALESCE(o.customer_lifetime_value, 0) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "description": "Sum of all order payments, matching the classic demo; no refund ledger is supplied.",
+            "data_tests": [
+              "nonnegative"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.customer_orders",
+                  "column": "customer_lifetime_value"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        },
+        {
+          "relation": "ref.slv_customers",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_daily_sales",
+      "description": "Daily order and payment totals split by lifecycle status, not net recognized revenue.",
+      "data_tests": [
+        {
+          "unique_combination": {
+            "arguments": {
+              "columns": [
+                "order_date",
+                "status"
+              ]
+            }
+          }
+        }
+      ],
+      "layer": "gold",
+      "domain": "sales",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT o.order_date AS \"order_date\", o.status AS \"status\", COUNT(*) AS \"order_count\", CAST(ROUND(SUM(o.amount), 2) AS DECIMAL(12, 2)) AS \"payment_total\" FROM \"ref\".\"gld_orders\" AS \"o\" GROUP BY o.order_date, o.status",
+        "columns": [
+          {
+            "name": "order_date",
+            "expression": "o.order_date",
+            "data_type": "date",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "order_date"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "expression": "o.status",
+            "data_type": "varchar",
+            "config": {
+              "meta": {
+                "role": "dimension"
+              }
+            },
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "status"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_count",
+            "expression": "COUNT(*)",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": []
+            }
+          },
+          {
+            "name": "payment_total",
+            "expression": "CAST(ROUND(SUM(o.amount), 2) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "data_tests": [
+              "nonnegative"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_optimizer_constants",
+      "description": "Source-free constant folding, useful before showing the business examples.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT 100 / 100 AS currency_scale, 1 + 2 AS sample_value",
+        "columns": [
+          {
+            "name": "currency_scale",
+            "data_type": "double",
+            "expression": "100 / 100",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": []
+            }
+          },
+          {
+            "name": "sample_value",
+            "data_type": "integer",
+            "expression": "1 + 2",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": []
+            }
+          }
+        ]
+      },
+      "dependencies": [],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_customer_leaderboard",
+      "description": "Inspect one output through DISTINCT, independent aggregation branches, HAVING, joins, ranking and a final limit.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [
+        {
+          "name": "customer_activity",
+          "sql": "SELECT a.customer_id AS \"customer_id\", COUNT(*) AS \"all_order_count\", SUM(CASE WHEN a.status = 'returned' THEN 1 ELSE 0 END) AS \"returned_order_count\" FROM \"ref\".\"slv_orders\" AS \"a\" GROUP BY a.customer_id",
+          "columns": [
+            {
+              "name": "customer_id",
+              "expression": "a.customer_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.slv_orders",
+                    "column": "customer_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "all_order_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "returned_order_count",
+              "expression": "SUM(CASE WHEN a.status = 'returned' THEN 1 ELSE 0 END)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.slv_orders",
+                    "column": "status"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "completed_orders",
+          "sql": "SELECT DISTINCT o.order_id AS \"order_id\", o.customer_id AS \"customer_id\", ROUND(o.amount, 2) AS \"amount\" FROM \"ref\".\"gld_orders\" AS \"o\" WHERE o.status = 'completed' AND o.amount > 0",
+          "columns": [
+            {
+              "name": "order_id",
+              "expression": "o.order_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "order_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "customer_id",
+              "expression": "o.customer_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "customer_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amount",
+              "expression": "ROUND(o.amount, 2)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "amount"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "customer_totals",
+          "sql": "SELECT c.customer_id AS \"customer_id\", ROUND(SUM(c.amount), 2) AS \"revenue\", COUNT(*) AS \"order_count\", MAX(c.amount) AS \"largest_order\" FROM \"step\".\"completed_orders\" AS \"c\" GROUP BY c.customer_id HAVING COUNT(*) >= 2",
+          "columns": [
+            {
+              "name": "customer_id",
+              "expression": "c.customer_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "step.completed_orders",
+                    "column": "customer_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "revenue",
+              "expression": "ROUND(SUM(c.amount), 2)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "step.completed_orders",
+                    "column": "amount"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "order_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            },
+            {
+              "name": "largest_order",
+              "expression": "MAX(c.amount)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "step.completed_orders",
+                    "column": "amount"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ranked",
+          "sql": "WITH scored AS (SELECT t.customer_id, t.revenue, t.order_count, ROUND(t.revenue / NULLIF(t.order_count, 0), 2) AS average_amount, ROW_NUMBER() OVER (ORDER BY t.revenue DESC, t.customer_id) AS revenue_rank FROM step.customer_totals AS t INNER JOIN step.customer_activity AS a ON t.customer_id = a.customer_id WHERE a.all_order_count >= 3) SELECT customer_id, revenue, order_count, average_amount, revenue_rank FROM scored",
+          "columns": []
+        }
+      ],
+      "output": {
+        "sql": "SELECT r.customer_id AS \"customer_id\", r.revenue AS \"ranked_revenue\", r.revenue_rank AS \"revenue_rank\", r.average_amount AS \"average_amount\", r.order_count AS \"order_count\" FROM \"step\".\"ranked\" AS \"r\" WHERE r.revenue_rank <= 3 ORDER BY r.revenue_rank, r.customer_id LIMIT 2",
+        "columns": [
+          {
+            "name": "customer_id",
+            "expression": "r.customer_id",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.ranked",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "ranked_revenue",
+            "expression": "r.revenue",
+            "data_type": "decimal(12, 2)",
+            "description": "Top-two eligible completed-order payment totals, not all-status customer lifetime value.",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.ranked",
+                  "column": "revenue"
+                }
+              ]
+            }
+          },
+          {
+            "name": "revenue_rank",
+            "expression": "r.revenue_rank",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.ranked",
+                  "column": "revenue_rank"
+                }
+              ]
+            }
+          },
+          {
+            "name": "average_amount",
+            "expression": "r.average_amount",
+            "data_type": "double",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.ranked",
+                  "column": "average_amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_count",
+            "expression": "r.order_count",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.ranked",
+                  "column": "order_count"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        },
+        {
+          "relation": "ref.slv_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_customer_lifetime_value",
+      "description": "Teaching input - merge two pass-through steps and fold the added zero without changing totals.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [
+        {
+          "name": "projected_orders",
+          "sql": "SELECT o.customer_id AS \"customer_id\", o.amount AS \"amount\", o.status AS \"unused_status\" FROM \"ref\".\"gld_orders\" AS \"o\"",
+          "columns": [
+            {
+              "name": "customer_id",
+              "expression": "o.customer_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "customer_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amount",
+              "expression": "o.amount",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "amount"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "unused_status",
+              "expression": "o.status",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.gld_orders",
+                    "column": "status"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "normalized_orders",
+          "sql": "SELECT p.customer_id AS \"customer_id\", p.amount + 0 AS \"amount\" FROM \"step\".\"projected_orders\" AS \"p\"",
+          "columns": [
+            {
+              "name": "customer_id",
+              "expression": "p.customer_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "step.projected_orders",
+                    "column": "customer_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amount",
+              "expression": "p.amount + 0",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "step.projected_orders",
+                    "column": "amount"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "output": {
+        "sql": "SELECT n.customer_id AS \"customer_id\", CAST(ROUND(SUM(n.amount), 2) AS DECIMAL(12, 2)) AS \"lifetime_value\" FROM \"step\".\"normalized_orders\" AS \"n\" GROUP BY n.customer_id",
+        "columns": [
+          {
+            "name": "customer_id",
+            "expression": "n.customer_id",
+            "data_type": "bigint",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.normalized_orders",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "lifetime_value",
+            "expression": "CAST(ROUND(SUM(n.amount), 2) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "description": "Total payments for customers with orders; unlike gld_customers, customers without orders are absent.",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.normalized_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_customer_order_ranking",
+      "description": "Top two orders per customer; the ranking boundary, tie-breaker and final limit must survive.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "WITH ranked AS (SELECT o.order_id, o.customer_id, o.amount, ROW_NUMBER() OVER (PARTITION BY o.customer_id ORDER BY o.amount DESC, o.order_id) AS position FROM ref.gld_orders AS o) SELECT r.order_id, r.customer_id, r.amount, r.position FROM ranked AS r WHERE r.position <= 2 ORDER BY r.customer_id, r.position LIMIT 10",
+        "columns": [
+          {
+            "name": "order_id",
+            "data_type": "bigint",
+            "expression": "r.order_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "customer_id",
+            "data_type": "bigint",
+            "expression": "r.customer_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "data_type": "decimal(12, 2)",
+            "expression": "r.amount",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "position",
+            "data_type": "bigint",
+            "expression": "r.position",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                },
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "customer_id"
+                },
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "order_id"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_distinct_paying_customers",
+      "description": "Keep DISTINCT customer/order pairs before projecting customer_id; a customer can legitimately appear twice.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT paid.customer_id FROM (SELECT DISTINCT o.customer_id, o.order_id FROM ref.gld_orders AS o WHERE o.amount > 0) AS paid",
+        "columns": [
+          {
+            "name": "customer_id",
+            "description": "One row per distinct paid customer/order pair, NOT one row per customer.",
+            "data_type": "bigint",
+            "expression": "paid.customer_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_high_value_customers",
+      "description": "Orders above the global average having a credit-card payment; scalar and correlated subqueries.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT candidate_order.order_id, candidate_order.customer_id, candidate_order.amount, (SELECT AVG(benchmark_order.amount) FROM ref.gld_orders AS benchmark_order) AS average_order_amount FROM ref.gld_orders AS candidate_order WHERE candidate_order.amount > (SELECT AVG(benchmark_order.amount) FROM ref.gld_orders AS benchmark_order) AND EXISTS(SELECT 1 FROM ref.slv_payments AS eligible_payment WHERE eligible_payment.order_id = candidate_order.order_id AND eligible_payment.payment_method = 'credit_card')",
+        "columns": [
+          {
+            "name": "order_id",
+            "data_type": "bigint",
+            "expression": "candidate_order.order_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "customer_id",
+            "data_type": "bigint",
+            "expression": "candidate_order.customer_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "data_type": "decimal(12, 2)",
+            "expression": "candidate_order.amount",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "average_order_amount",
+            "data_type": "double",
+            "expression": "(SELECT AVG(benchmark_order.amount) FROM ref.gld_orders AS benchmark_order)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.gld_orders",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.gld_orders",
+          "included": true
+        },
+        {
+          "relation": "ref.slv_payments",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_payment_union",
+      "description": "UNION ALL of card and non-card payments; repeated order/amount pairs must not be deduplicated.",
+      "layer": "gold",
+      "domain": "demo",
+      "config": {
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "demo"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT p.order_id, p.amount FROM ref.slv_payments AS p WHERE p.payment_method = 'credit_card' UNION ALL SELECT p.order_id, p.amount FROM ref.slv_payments AS p WHERE p.payment_method <> 'credit_card'",
+        "columns": [
+          {
+            "name": "order_id",
+            "data_type": "bigint",
+            "expression": "p.order_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_payments",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "data_type": "decimal(12, 2)",
+            "expression": "p.amount",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_payments",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.slv_payments",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_orders",
+      "description": "One row per order, with all payment methods aggregated before the join.",
+      "constraints": [
+        {
+          "type": "primary_key",
+          "columns": [
+            "order_id"
+          ]
+        }
+      ],
+      "layer": "gold",
+      "domain": "sales",
+      "config": {
+        "contract": {
+          "enforced": true
+        },
+        "materialized": "table",
+        "meta": {
+          "owner": "analytics",
+          "domain": "sales"
+        }
+      },
+      "steps": [
+        {
+          "name": "order_payments",
+          "sql": "SELECT p.order_id AS \"order_id\", CAST(SUM(p.amount) AS DECIMAL(12, 2)) AS \"amount\", CAST(SUM(CASE WHEN p.payment_method = 'credit_card' THEN p.amount ELSE 0 END) AS DECIMAL(12, 2)) AS \"credit_card_amount\", COUNT(*) AS \"payment_count\" FROM \"ref\".\"slv_payments\" AS \"p\" GROUP BY p.order_id",
+          "columns": [
+            {
+              "name": "order_id",
+              "expression": "p.order_id",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.slv_payments",
+                    "column": "order_id"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amount",
+              "expression": "CAST(SUM(p.amount) AS DECIMAL(12, 2))",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.slv_payments",
+                    "column": "amount"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "credit_card_amount",
+              "expression": "CAST(SUM(CASE WHEN p.payment_method = 'credit_card' THEN p.amount ELSE 0 END) AS DECIMAL(12, 2))",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": [
+                  {
+                    "relation": "ref.slv_payments",
+                    "column": "amount"
+                  },
+                  {
+                    "relation": "ref.slv_payments",
+                    "column": "payment_method"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "payment_count",
+              "expression": "COUNT(*)",
+              "lineage": {
+                "status": "resolved",
+                "upstream_columns": []
+              }
+            }
+          ]
+        }
+      ],
+      "output": {
+        "sql": "SELECT o.order_id AS \"order_id\", o.customer_id AS \"customer_id\", o.order_date AS \"order_date\", o.status AS \"status\", CAST(COALESCE(p.amount, 0) AS DECIMAL(12, 2)) AS \"amount\", CAST(COALESCE(p.credit_card_amount, 0) AS DECIMAL(12, 2)) AS \"credit_card_amount\", COALESCE(p.payment_count, CAST(0 AS BIGINT)) AS \"payment_count\" FROM \"ref\".\"slv_orders\" AS \"o\" LEFT JOIN \"step\".\"order_payments\" AS \"p\" ON o.order_id = p.order_id",
+        "columns": [
+          {
+            "name": "order_id",
+            "expression": "o.order_id",
+            "data_type": "bigint",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_orders",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "customer_id",
+            "expression": "o.customer_id",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_orders",
+                  "column": "customer_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_date",
+            "expression": "o.order_date",
+            "data_type": "date",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_orders",
+                  "column": "order_date"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "expression": "o.status",
+            "data_type": "varchar",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_orders",
+                  "column": "status"
+                }
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "expression": "CAST(COALESCE(p.amount, 0) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "description": "Total payments for the order, including returned or pending orders; not net revenue.",
+            "data_tests": [
+              "nonnegative"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.order_payments",
+                  "column": "amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "credit_card_amount",
+            "expression": "CAST(COALESCE(p.credit_card_amount, 0) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.order_payments",
+                  "column": "credit_card_amount"
+                }
+              ]
+            }
+          },
+          {
+            "name": "payment_count",
+            "expression": "COALESCE(p.payment_count, CAST(0 AS BIGINT))",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "step.order_payments",
+                  "column": "payment_count"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.slv_orders",
+          "included": true
+        },
+        {
+          "relation": "ref.slv_payments",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "gld_payment_method_summary",
+      "description": "Payment-method usage, including zero-value payments.",
+      "layer": "gold",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "owner": "payments",
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT p.payment_method AS \"payment_method\", COUNT(*) AS \"payment_count\", COUNT(DISTINCT p.order_id) AS \"paid_order_count\", CAST(SUM(p.amount) AS DECIMAL(12, 2)) AS \"payment_total\" FROM \"ref\".\"slv_payments\" AS \"p\" GROUP BY p.payment_method",
+        "columns": [
+          {
+            "name": "payment_method",
+            "expression": "p.payment_method",
+            "data_type": "varchar",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_payments",
+                  "column": "payment_method"
+                }
+              ]
+            }
+          },
+          {
+            "name": "payment_count",
+            "expression": "COUNT(*)",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": []
+            }
+          },
+          {
+            "name": "paid_order_count",
+            "expression": "COUNT(DISTINCT p.order_id)",
+            "data_type": "bigint",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_payments",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "payment_total",
+            "expression": "CAST(SUM(p.amount) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.slv_payments",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.slv_payments",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "slv_customers",
+      "description": "Standardized customer identifiers and names; owns a check-strategy snapshot.",
+      "layer": "silver",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT CAST(c.id AS BIGINT) AS \"customer_id\", TRIM(c.first_name) AS \"first_name\", TRIM(c.last_name) AS \"last_name\" FROM \"ref\".\"brz_customers\" AS \"c\"",
+        "columns": [
+          {
+            "name": "customer_id",
+            "expression": "CAST(c.id AS BIGINT)",
+            "data_type": "bigint",
+            "description": "Application customer identifier.",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_customers",
+                  "column": "id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "first_name",
+            "expression": "TRIM(c.first_name)",
+            "data_type": "varchar",
+            "description": "Customer first name, with surrounding whitespace removed.",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_customers",
+                  "column": "first_name"
+                }
+              ]
+            }
+          },
+          {
+            "name": "last_name",
+            "expression": "TRIM(c.last_name)",
+            "data_type": "varchar",
+            "description": "Customer last-name initial, with surrounding whitespace removed.",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_customers",
+                  "column": "last_name"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "snapshot": {
+        "name": "customer_history",
+        "config": {
+          "check_cols": [
+            "first_name",
+            "last_name"
+          ],
+          "invalidate_hard_deletes": true,
+          "strategy": "check",
+          "target_schema": "snapshots",
+          "unique_key": "customer_id"
+        },
+        "columns": [
+          "customer_id",
+          "first_name",
+          "last_name"
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.brz_customers",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "slv_orders",
+      "description": "Standardized order keys, date and lifecycle status.",
+      "layer": "silver",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT CAST(o.id AS BIGINT) AS \"order_id\", CAST(o.user_id AS BIGINT) AS \"customer_id\", CAST(o.order_date AS DATE) AS \"order_date\", LOWER(TRIM(o.status)) AS \"status\" FROM \"ref\".\"brz_orders\" AS \"o\"",
+        "columns": [
+          {
+            "name": "order_id",
+            "expression": "CAST(o.id AS BIGINT)",
+            "data_type": "bigint",
+            "description": "Application order identifier.",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_orders",
+                  "column": "id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "customer_id",
+            "expression": "CAST(o.user_id AS BIGINT)",
+            "data_type": "bigint",
+            "description": "Customer who placed the order.",
+            "data_tests": [
+              "not_null",
+              {
+                "relationships": {
+                  "arguments": {
+                    "to": "{{ ref('slv_customers') }}",
+                    "field": "customer_id"
+                  }
+                }
+              }
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_orders",
+                  "column": "user_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_date",
+            "expression": "CAST(o.order_date AS DATE)",
+            "data_type": "date",
+            "description": "Date the order was placed.",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_orders",
+                  "column": "order_date"
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "expression": "LOWER(TRIM(o.status))",
+            "data_type": "varchar",
+            "data_tests": [
+              {
+                "accepted_values": {
+                  "arguments": {
+                    "values": [
+                      "placed",
+                      "shipped",
+                      "completed",
+                      "return_pending",
+                      "returned"
+                    ]
+                  }
+                }
+              }
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_orders",
+                  "column": "status"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.brz_orders",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    },
+    {
+      "version": 1,
+      "name": "slv_payments",
+      "description": "Payments in currency units; shorthand columns deliberately demonstrate enrich.",
+      "layer": "silver",
+      "domain": "sales",
+      "config": {
+        "materialized": "view",
+        "meta": {
+          "domain": "sales"
+        }
+      },
+      "steps": [],
+      "output": {
+        "sql": "SELECT CAST(p.id AS BIGINT) AS \"payment_id\", p.order_id AS \"order_id\", p.payment_method AS \"payment_method\", CAST(ROUND(p.amount / 100.0, 2) AS DECIMAL(12, 2)) AS \"amount\" FROM \"ref\".\"brz_payments\" AS \"p\"",
+        "columns": [
+          {
+            "name": "payment_id",
+            "expression": "CAST(p.id AS BIGINT)",
+            "data_type": "bigint",
+            "data_tests": [
+              "unique",
+              "not_null"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_payments",
+                  "column": "id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "order_id",
+            "expression": "p.order_id",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_payments",
+                  "column": "order_id"
+                }
+              ]
+            }
+          },
+          {
+            "name": "payment_method",
+            "expression": "p.payment_method",
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_payments",
+                  "column": "payment_method"
+                }
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "expression": "CAST(ROUND(p.amount / 100.0, 2) AS DECIMAL(12, 2))",
+            "data_type": "decimal(12, 2)",
+            "description": "Payment amount converted from cents to currency units.",
+            "data_tests": [
+              "not_null",
+              "nonnegative"
+            ],
+            "lineage": {
+              "status": "resolved",
+              "upstream_columns": [
+                {
+                  "relation": "ref.brz_payments",
+                  "column": "amount"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependencies": [
+        {
+          "relation": "ref.brz_payments",
+          "included": true
+        }
+      ],
+      "expansion": {
+        "status": "expanded",
+        "macro_refs": []
+      },
+      "macro_refs": []
+    }
+  ],
+  "sources": [
+    {
+      "name": "jaffle_shop",
+      "description": "Original dbt Jaffle Shop seed data, loaded locally by dbt.",
+      "schema": "main_raw",
+      "loader": "dbt seed",
+      "tables": [
+        {
+          "name": "customers",
+          "identifier": "raw_customers",
+          "description": "One row per customer in the application.",
+          "layer": "bronze",
+          "domain": "sales",
+          "identity": "jaffle_shop.customers",
+          "columns": [
+            {
+              "name": "id",
+              "data_type": "bigint",
+              "source_data_type": "BIGINT",
+              "description": "Application customer identifier.",
+              "data_tests": [
+                "unique",
+                "not_null"
+              ]
+            },
+            {
+              "name": "first_name",
+              "data_type": "varchar",
+              "description": "Customer first name."
+            },
+            {
+              "name": "last_name",
+              "data_type": "varchar",
+              "description": "Customer last-name initial in the sample data."
+            }
+          ]
+        },
+        {
+          "name": "orders",
+          "identifier": "raw_orders",
+          "description": "One row per order; amounts are recorded separately as payments.",
+          "layer": "bronze",
+          "domain": "sales",
+          "identity": "jaffle_shop.orders",
+          "columns": [
+            {
+              "name": "id",
+              "data_type": "bigint",
+              "description": "Application order identifier.",
+              "data_tests": [
+                "unique",
+                "not_null"
+              ]
+            },
+            {
+              "name": "user_id",
+              "data_type": "bigint",
+              "description": "Customer who placed the order."
+            },
+            {
+              "name": "order_date",
+              "data_type": "date",
+              "description": "Date the order was placed."
+            },
+            {
+              "name": "status",
+              "data_type": "varchar",
+              "description": "Application order lifecycle status."
+            }
+          ]
+        },
+        {
+          "name": "payments",
+          "identifier": "raw_payments",
+          "description": "Payment transactions in cents; an order can have multiple payments.",
+          "layer": "bronze",
+          "domain": "sales",
+          "identity": "jaffle_shop.payments",
+          "columns": [
+            {
+              "name": "id",
+              "data_type": "bigint",
+              "description": "Application payment identifier.",
+              "data_tests": [
+                "unique",
+                "not_null"
+              ]
+            },
+            {
+              "name": "order_id",
+              "data_type": "bigint",
+              "description": "Order receiving this payment."
+            },
+            {
+              "name": "payment_method",
+              "data_type": "varchar",
+              "description": "Credit card, bank transfer, coupon or gift card."
+            },
+            {
+              "name": "amount",
+              "data_type": "bigint",
+              "source_data_type": "BIGINT",
+              "description": "Payment amount in cents, not currency units."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "macros": [
+    {
+      "name": "hash_relation_attributes",
+      "kind": "macro",
+      "path": "hash_relation_attributes.sql",
+      "expression": "{% macro hash_relation_attributes(relation, table_alias='', exclude=[]) -%}\n  {%- if execute -%}\n    {%- set columns = adapter.get_columns_in_relation(relation) -%}\n    {%- set selected = [] -%}\n    {%- for column in columns | sort(attribute='name') -%}\n      {%- if column.name | lower not in exclude | map('lower') | list -%}\n        {%- set prefix = adapter.quote(table_alias) ~ '.' if table_alias else '' -%}\n        {%- do selected.append('cast(' ~ prefix ~ adapter.quote(column.name) ~ ' as varchar)') -%}\n      {%- endif -%}\n    {%- endfor -%}\n    {{ return(\"md5(to_json(list_value(\" ~ selected | join(', ') ~ \")))\" if selected else \"md5('[]')\") }}\n  {%- else -%}\n    cast(null as varchar)\n  {%- endif -%}\n{%- endmacro %}",
+      "description": "Hash physical relation attributes at dbt runtime; exclusions are explicit.",
+      "runtime": true,
+      "macro_refs": []
+    },
+    {
+      "name": "round_money",
+      "kind": "macro",
+      "path": "round_money.sql",
+      "expression": "{% macro round_money(expression, decimal_places=2) -%}\nround({{ expression }}, {{ decimal_places }})\n{%- endmacro %}",
+      "description": "Round a scalar SQL expression to the requested decimal places.",
+      "runtime": false,
+      "macro_refs": []
+    },
+    {
+      "name": "rounded_total",
+      "kind": "macro",
+      "path": "rounded_total.sql",
+      "expression": "{% macro rounded_total(expressions, options={}) -%}\n{{ round_money(expressions | join(' + '), options.get('decimal_places', 2)) }}\n{%- endmacro %}",
+      "description": "Sum an array of SQL expressions and round using an optional settings map.",
+      "runtime": false,
+      "macro_refs": [
+        "round_money"
+      ]
+    },
+    {
+      "name": "test_nonnegative",
+      "kind": "test",
+      "path": "nonnegative.sql",
+      "expression": "{% test nonnegative(model, column_name) %}\nselect *\nfrom {{ model }}\nwhere {{ column_name }} < 0\n{% endtest %}",
+      "description": "Return rows with negative values.",
+      "runtime": false,
+      "macro_refs": []
+    },
+    {
+      "name": "test_unique_combination",
+      "kind": "test",
+      "path": "unique_combination.sql",
+      "expression": "{% test unique_combination(model, columns) %}\nselect {{ columns | join(', ') }}, count(*) as duplicate_count\nfrom {{ model }}\ngroup by {{ columns | join(', ') }}\nhaving count(*) > 1\n{% endtest %}",
+      "description": "Return duplicate combinations of the supplied natural-key columns.",
+      "runtime": false,
+      "macro_refs": []
+    }
+  ],
+  "classifications": {
+    "version": 1,
+    "layers": [
+      {
+        "name": "bronze",
+        "description": "Registered Jaffle Shop inputs and faithful raw mappings.",
+        "domains": [
+          {
+            "name": "sales",
+            "description": "Jaffle Shop customers, orders and payments."
+          }
+        ]
+      },
+      {
+        "name": "silver",
+        "description": "Cleansed business entities.",
+        "domains": [
+          {
+            "name": "sales",
+            "description": "Jaffle Shop customers, orders and payments."
+          }
+        ]
+      },
+      {
+        "name": "gold",
+        "description": "Business-ready transformations.",
+        "domains": [
+          {
+            "name": "sales",
+            "description": "Customer lifetime value, orders and sales reporting."
+          },
+          {
+            "name": "demo",
+            "description": "Jaffle Shop capability and optimization teaching cases."
+          }
+        ]
+      }
+    ]
+  },
+  "default_configs": {
+    "name": "defaults",
+    "configs": [
+      {
+        "name": "gold_defaults",
+        "target": {
+          "layer": "gold"
+        },
+        "config": {
+          "materialized": "table",
+          "meta": {
+            "owner": "analytics"
+          }
+        }
+      },
+      {
+        "name": "silver_defaults",
+        "target": {
+          "layer": "silver"
+        },
+        "config": {
+          "materialized": "view"
+        }
+      },
+      {
+        "name": "bronze_defaults",
+        "target": {
+          "layer": "bronze"
+        },
+        "config": {
+          "materialized": "view"
+        }
+      }
+    ]
+  }
+}

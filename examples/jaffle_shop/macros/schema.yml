@@ -1,0 +1,12 @@
+version: 2
+macros:
+  - name: round_money
+    description: Round a scalar SQL expression to the requested decimal places.
+  - name: rounded_total
+    description: Sum an array of SQL expressions and round using an optional settings map.
+  - name: test_nonnegative
+    description: Return rows with negative values.
+  - name: test_unique_combination
+    description: Return duplicate combinations of the supplied natural-key columns.
+  - name: hash_relation_attributes
+    description: Hash physical relation attributes at dbt runtime; exclusions are explicit.

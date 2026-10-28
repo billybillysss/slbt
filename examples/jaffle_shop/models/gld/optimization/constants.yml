@@ -1,0 +1,13 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_optimizer_constants
+    description: Source-free constant folding, useful before showing the business examples.
+    output:
+      sql: SELECT 100 / 100 AS currency_scale, 1 + 2 AS sample_value
+      columns:
+        currency_scale:
+          data_type: double
+        sample_value:
+          data_type: integer

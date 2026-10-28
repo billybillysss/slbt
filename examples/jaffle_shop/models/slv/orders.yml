@@ -1,0 +1,44 @@
+version: 1
+layer: silver
+domain: sales
+tables:
+  - name: slv_orders
+    description: Standardized order keys, date and lifecycle status.
+    output:
+      from:
+        ref: brz_orders
+        alias: o
+      columns:
+        order_id:
+          expression: CAST(o.id AS BIGINT)
+          data_type: bigint
+          description: Application order identifier.
+          data_tests:
+            - unique
+            - not_null
+        customer_id:
+          expression: CAST(o.user_id AS BIGINT)
+          data_type: bigint
+          description: Customer who placed the order.
+          data_tests:
+            - not_null
+            - relationships:
+                arguments:
+                  to: "{{ ref('slv_customers') }}"
+                  field: customer_id
+        order_date:
+          expression: CAST(o.order_date AS DATE)
+          data_type: date
+          description: Date the order was placed.
+        status:
+          expression: LOWER(TRIM(o.status))
+          data_type: varchar
+          data_tests:
+            - accepted_values:
+                arguments:
+                  values:
+                    - placed
+                    - shipped
+                    - completed
+                    - return_pending
+                    - returned

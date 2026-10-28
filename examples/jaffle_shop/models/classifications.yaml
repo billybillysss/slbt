@@ -1,0 +1,19 @@
+version: 1
+layers:
+  - name: bronze
+    description: Registered Jaffle Shop inputs and faithful raw mappings.
+    domains:
+      - name: sales
+        description: Jaffle Shop customers, orders and payments.
+  - name: silver
+    description: Cleansed business entities.
+    domains:
+      - name: sales
+        description: Jaffle Shop customers, orders and payments.
+  - name: gold
+    description: Business-ready transformations.
+    domains:
+      - name: sales
+        description: Customer lifetime value, orders and sales reporting.
+      - name: demo
+        description: Jaffle Shop capability and optimization teaching cases.

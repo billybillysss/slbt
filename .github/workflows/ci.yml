@@ -1,0 +1,68 @@
+name: Validate and build
+
+on:
+  - push
+  - pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+            integration: false
+          - os: ubuntu-latest
+            python: "3.13"
+            integration: true
+          - os: windows-latest
+            python: "3.13"
+            integration: false
+    runs-on: ${{ matrix.os }}
+    env:
+      UV_PYTHON: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked --python ${{ matrix.python }}
+      - run: uv run pytest
+      - run: uv run slbt --project-dir examples/jaffle_shop validate
+      - if: matrix.integration
+        name: Build and document Jaffle Shop
+        run: |
+          uv run slbt --project-dir examples/jaffle_shop export dbt
+          uv run slbt --project-dir examples/jaffle_shop export catalog --dry-run
+          uv run dbt build --project-dir examples/jaffle_shop/dbt --profiles-dir examples/jaffle_shop/dbt
+          uv run dbt docs generate --project-dir examples/jaffle_shop/dbt --profiles-dir examples/jaffle_shop/dbt
+      - if: matrix.integration
+        name: Check handwritten dbt integration
+        run: |
+          uv run dbt parse --project-dir analytics --profiles-dir analytics
+          uv run dbt seed --project-dir analytics --profiles-dir analytics
+          uv run dbt build --project-dir analytics --profiles-dir analytics
+          uv run dbt test --project-dir analytics --profiles-dir analytics
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv python install 3.11
+      - run: uv build --python 3.11
+      - name: Smoke test installed wheel
+        run: |
+          uv venv --python 3.11 "$RUNNER_TEMP/slbt-package-smoke"
+          uv pip install --python "$RUNNER_TEMP/slbt-package-smoke/bin/python" dist/*.whl
+          "$RUNNER_TEMP/slbt-package-smoke/bin/python" scripts/smoke_distribution.py
+      - name: Test installed wheel with fresh dependencies
+        run: |
+          uv pip install --python "$RUNNER_TEMP/slbt-package-smoke/bin/python" "pytest>=9.1.1" "pytest-xdist>=3.8.0" duckdb
+          "$RUNNER_TEMP/slbt-package-smoke/bin/python" -m pytest --tb=short
+      - name: Smoke test installed source archive
+        run: |
+          uv pip install --python "$RUNNER_TEMP/slbt-package-smoke/bin/python" --reinstall-package slbt dist/*.tar.gz
+          "$RUNNER_TEMP/slbt-package-smoke/bin/python" scripts/smoke_distribution.py

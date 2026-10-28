@@ -1,0 +1,15 @@
+version: 1
+layer: bronze
+domain: sales
+tables:
+  - name: brz_payments
+    description: Preserve original payment amounts in cents.
+    output:
+      from:
+        source: jaffle_shop.payments
+        alias: p
+      columns:
+        id: p.id
+        order_id: p.order_id
+        payment_method: p.payment_method
+        amount: p.amount

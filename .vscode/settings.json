@@ -1,0 +1,17 @@
+{
+    "terminal.integrated.env.windows": {
+        "SLBT_PROJECT_DIR": "${workspaceFolder}\\examples\\jaffle_shop",
+        "DBT_PROJECT_DIR": "${workspaceFolder}\\examples\\jaffle_shop\\dbt",
+        "DBT_PROFILES_DIR": "${workspaceFolder}\\examples\\jaffle_shop\\dbt"
+    },
+    "terminal.integrated.env.linux": {
+        "SLBT_PROJECT_DIR": "${workspaceFolder}/examples/jaffle_shop",
+        "DBT_PROJECT_DIR": "${workspaceFolder}/examples/jaffle_shop/dbt",
+        "DBT_PROFILES_DIR": "${workspaceFolder}/examples/jaffle_shop/dbt"
+    },
+    "terminal.integrated.env.osx": {
+        "SLBT_PROJECT_DIR": "${workspaceFolder}/examples/jaffle_shop",
+        "DBT_PROJECT_DIR": "${workspaceFolder}/examples/jaffle_shop/dbt",
+        "DBT_PROFILES_DIR": "${workspaceFolder}/examples/jaffle_shop/dbt"
+    }
+}

@@ -1,0 +1,65 @@
+version: 1
+layer: bronze
+domain: sales
+sources:
+  - name: jaffle_shop
+    description: Original dbt Jaffle Shop seed data, loaded locally by dbt.
+    schema: main_raw
+    loader: dbt seed
+    tables:
+      - name: customers
+        identifier: raw_customers
+        description: One row per customer in the application.
+        columns:
+          - name: id
+            data_type: bigint
+            source_data_type: BIGINT
+            description: Application customer identifier.
+            data_tests:
+              - unique
+              - not_null
+          - name: first_name
+            data_type: varchar
+            description: Customer first name.
+          - name: last_name
+            data_type: varchar
+            description: Customer last-name initial in the sample data.
+      - name: orders
+        identifier: raw_orders
+        description: One row per order; amounts are recorded separately as payments.
+        columns:
+          - name: id
+            data_type: bigint
+            description: Application order identifier.
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            data_type: bigint
+            description: Customer who placed the order.
+          - name: order_date
+            data_type: date
+            description: Date the order was placed.
+          - name: status
+            data_type: varchar
+            description: Application order lifecycle status.
+      - name: payments
+        identifier: raw_payments
+        description: Payment transactions in cents; an order can have multiple payments.
+        columns:
+          - name: id
+            data_type: bigint
+            description: Application payment identifier.
+            data_tests:
+              - unique
+              - not_null
+          - name: order_id
+            data_type: bigint
+            description: Order receiving this payment.
+          - name: payment_method
+            data_type: varchar
+            description: Credit card, bank transfer, coupon or gift card.
+          - name: amount
+            data_type: bigint
+            source_data_type: BIGINT
+            description: Payment amount in cents, not currency units.

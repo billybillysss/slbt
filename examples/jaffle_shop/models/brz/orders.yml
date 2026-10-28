@@ -1,0 +1,15 @@
+version: 1
+layer: bronze
+domain: sales
+tables:
+  - name: brz_orders
+    description: Faithful mapping of application orders without invented order amounts.
+    output:
+      from:
+        source: jaffle_shop.orders
+        alias: o
+      columns:
+        id: o.id
+        user_id: o.user_id
+        order_date: o.order_date
+        status: o.status

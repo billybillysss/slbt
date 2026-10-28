@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="128" viewBox="0 0 384 128" role="img" aria-labelledby="title description">
+  <title id="title">slbt</title>
+  <desc id="description">Semantic inputs connect through an open center to multiple compiled outputs, beside a lowercase slbt wordmark.</desc>
+  <g id="semantic-graph">
+    <g fill="none" stroke="#0D9488" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 40H26C30 40 32 42 32 46V58C32 62 34 64 38 64"/>
+      <path d="M18 88H26C30 88 32 86 32 82V70C32 66 34 64 38 64"/>
+    </g>
+    <g fill="none" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M94 64H104M104 64V30C104 26 106 24 110 24M104 64H110M104 64V98C104 102 106 104 110 104"/>
+    </g>
+    <path d="M57 39L36 60Q32 64 36 68L57 89M71 39L92 60Q96 64 92 68L71 89" fill="none" stroke="#0D9488" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#0D9488">
+      <circle cx="12" cy="40" r="6"/>
+      <circle cx="12" cy="88" r="6"/>
+    </g>
+    <g fill="#38BDF8">
+      <rect x="110" y="18" width="12" height="12" rx="3"/>
+      <rect x="110" y="58" width="12" height="12" rx="3"/>
+      <rect x="110" y="98" width="12" height="12" rx="3"/>
+    </g>
+  </g>
+  <g id="wordmark" fill="none" stroke="#0F172A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M198 55H179C168 55 162 60 162 67C162 74 168 78 180 78H183C194 78 200 82 200 89C200 96 194 101 183 101H160"/>
+    <path d="M226 32V88Q226 101 239 101H242"/>
+    <path d="M265 32V101M265 78C265 64 274 55 285 55C299 55 308 65 308 78C308 92 299 101 285 101C274 101 265 92 265 78"/>
+    <path d="M335 40V87Q335 101 349 101H357M322 55H353"/>
+  </g>
+</svg>

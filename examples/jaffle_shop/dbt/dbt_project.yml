@@ -1,0 +1,36 @@
+name: jaffle_shop_demo
+version: '1.0'
+config-version: 2
+profile: jaffle_shop_demo
+model-paths:
+  - models
+macro-paths:
+  - macros
+snapshot-paths:
+  - snapshots
+seed-paths:
+  - seeds
+test-paths:
+  - tests
+clean-targets:
+  - target
+seeds:
+  jaffle_shop_demo:
+    +schema: raw
+    raw_customers:
+      +column_types:
+        id: bigint
+        first_name: varchar
+        last_name: varchar
+    raw_orders:
+      +column_types:
+        id: bigint
+        user_id: bigint
+        order_date: date
+        status: varchar
+    raw_payments:
+      +column_types:
+        id: bigint
+        order_id: bigint
+        payment_method: varchar
+        amount: bigint

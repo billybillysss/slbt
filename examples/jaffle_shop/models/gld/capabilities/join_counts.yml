@@ -1,0 +1,87 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_join_counts
+    description: Compare structured inner, left, right, full and cross joins between orders and customers.
+    steps:
+      inner_rows:
+        from:
+          ref: slv_orders
+          alias: o
+        joins:
+          - ref: slv_customers
+            alias: c
+            type: inner
+            on: o.customer_id = c.customer_id
+        columns:
+          join_type: "'inner'"
+          row_count: COUNT(*)
+      left_rows:
+        from:
+          ref: slv_orders
+          alias: o
+        joins:
+          - ref: slv_customers
+            alias: c
+            type: left
+            on: o.customer_id = c.customer_id
+        columns:
+          join_type: "'left'"
+          row_count: COUNT(*)
+      right_rows:
+        from:
+          ref: slv_orders
+          alias: o
+        joins:
+          - ref: slv_customers
+            alias: c
+            type: right
+            on: o.customer_id = c.customer_id
+        columns:
+          join_type: "'right'"
+          row_count: COUNT(*)
+      full_rows:
+        from:
+          ref: slv_orders
+          alias: o
+        joins:
+          - ref: slv_customers
+            alias: c
+            type: full
+            on: o.customer_id = c.customer_id
+        columns:
+          join_type: "'full'"
+          row_count: COUNT(*)
+      cross_rows:
+        from:
+          ref: slv_orders
+          alias: o
+        joins:
+          - ref: slv_customers
+            alias: c
+            type: cross
+        columns:
+          join_type: "'cross'"
+          row_count: COUNT(*)
+    output:
+      sql: |
+        SELECT i.join_type, i.row_count FROM step.inner_rows AS i
+        UNION ALL
+        SELECT l.join_type, l.row_count FROM step.left_rows AS l
+        UNION ALL
+        SELECT r.join_type, r.row_count FROM step.right_rows AS r
+        UNION ALL
+        SELECT f.join_type, f.row_count FROM step.full_rows AS f
+        UNION ALL
+        SELECT c.join_type, c.row_count FROM step.cross_rows AS c
+      columns:
+        join_type:
+          data_type: varchar
+          data_tests:
+            - unique
+            - not_null
+        row_count:
+          data_type: bigint
+          data_tests:
+            - nonnegative

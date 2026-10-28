@@ -1,0 +1,39 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_customer_lifetime_value
+    description: Teaching input - merge two pass-through steps and fold the added zero without changing totals.
+    steps:
+      projected_orders:
+        from:
+          ref: gld_orders
+          alias: o
+        columns:
+          customer_id: o.customer_id
+          amount: o.amount
+          unused_status: o.status
+      normalized_orders:
+        from:
+          step: projected_orders
+          alias: p
+        columns:
+          customer_id: p.customer_id
+          amount: p.amount + 0
+    output:
+      from:
+        step: normalized_orders
+        alias: n
+      group_by:
+        - n.customer_id
+      columns:
+        customer_id:
+          expression: n.customer_id
+          data_type: bigint
+          data_tests:
+            - unique
+            - not_null
+        lifetime_value:
+          expression: CAST(round_money(SUM(n.amount)) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)
+          description: Total payments for customers with orders; unlike gld_customers, customers without orders are absent.

@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.venv-package-smoke/
+
+# Local dbt artifacts
+**/target/
+**/dbt_packages/
+**/logs/
+**/.user.yml
+*.duckdb
+*.duckdb.wal
+.pytest_cache/
+
+# Temporary Excel lock files
+~$*.xlsx
+
+# Regeneratable dbt artifacts (the example catalog is intentionally included)
+/examples/jaffle_shop/dbt/models/
+/examples/jaffle_shop/dbt/macros/
+/examples/jaffle_shop/dbt/snapshots/

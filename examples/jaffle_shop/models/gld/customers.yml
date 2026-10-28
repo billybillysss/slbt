@@ -1,0 +1,66 @@
+version: 1
+layer: gold
+domain: sales
+tables:
+  - name: gld_customers
+    description: Classic Jaffle Shop customer mart; all customers retained, all order statuses counted.
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns:
+          - customer_id
+    steps:
+      customer_orders:
+        from:
+          ref: gld_orders
+          alias: o
+        group_by:
+          - o.customer_id
+        columns:
+          customer_id: o.customer_id
+          first_order: MIN(o.order_date)
+          most_recent_order: MAX(o.order_date)
+          number_of_orders: COUNT(*)
+          customer_lifetime_value: CAST(SUM(o.amount) AS DECIMAL(12, 2))
+    output:
+      from:
+        ref: slv_customers
+        alias: c
+      joins:
+        - step: customer_orders
+          alias: o
+          type: left
+          on: c.customer_id = o.customer_id
+      columns:
+        customer_id:
+          expression: c.customer_id
+          data_type: bigint
+          description: Application customer identifier.
+          data_tests:
+            - unique
+            - not_null
+        first_name:
+          expression: c.first_name
+          data_type: varchar
+        last_name:
+          expression: c.last_name
+          data_type: varchar
+        first_order:
+          expression: o.first_order
+          data_type: date
+        most_recent_order:
+          expression: o.most_recent_order
+          data_type: date
+        number_of_orders:
+          expression: COALESCE(o.number_of_orders, CAST(0 AS BIGINT))
+          data_type: bigint
+          data_tests:
+            - nonnegative
+        customer_lifetime_value:
+          expression: CAST(COALESCE(o.customer_lifetime_value, 0) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)
+          description: Sum of all order payments, matching the classic demo; no refund ledger is supplied.
+          data_tests:
+            - nonnegative

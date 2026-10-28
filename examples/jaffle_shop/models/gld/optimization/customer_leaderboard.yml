@@ -1,0 +1,77 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_customer_leaderboard
+    description: Inspect one output through DISTINCT, independent aggregation branches, HAVING, joins, ranking and a final limit.
+    steps:
+      completed_orders:
+        from:
+          ref: gld_orders
+          alias: o
+        distinct: true
+        where: o.status = 'completed' AND o.amount > 0
+        columns:
+          order_id: o.order_id
+          customer_id: o.customer_id
+          amount: round_money(o.amount)
+      customer_totals:
+        from:
+          step: completed_orders
+          alias: c
+        group_by:
+          - c.customer_id
+        having: COUNT(*) >= 2
+        columns:
+          customer_id: c.customer_id
+          revenue: round_money(SUM(c.amount))
+          order_count: COUNT(*)
+          largest_order: MAX(c.amount)
+      customer_activity:
+        from:
+          ref: slv_orders
+          alias: a
+        group_by:
+          - a.customer_id
+        columns:
+          customer_id: a.customer_id
+          all_order_count: COUNT(*)
+          returned_order_count: SUM(CASE WHEN a.status = 'returned' THEN 1 ELSE 0 END)
+      ranked:
+        sql: |
+          WITH scored AS (
+            SELECT t.customer_id, t.revenue, t.order_count,
+              ROUND(t.revenue / NULLIF(t.order_count, 0), 2) AS average_amount,
+              ROW_NUMBER() OVER (ORDER BY t.revenue DESC, t.customer_id) AS revenue_rank
+            FROM step.customer_totals AS t
+            INNER JOIN step.customer_activity AS a ON t.customer_id = a.customer_id
+            WHERE a.all_order_count >= 3
+          )
+          SELECT customer_id, revenue, order_count, average_amount, revenue_rank
+          FROM scored
+    output:
+      from:
+        step: ranked
+        alias: r
+      where: r.revenue_rank <= 3
+      order_by:
+        - r.revenue_rank
+        - r.customer_id
+      limit: 2
+      columns:
+        customer_id:
+          expression: r.customer_id
+          data_type: bigint
+        ranked_revenue:
+          expression: r.revenue
+          data_type: decimal(12, 2)
+          description: Top-two eligible completed-order payment totals, not all-status customer lifetime value.
+        revenue_rank:
+          expression: r.revenue_rank
+          data_type: bigint
+        average_amount:
+          expression: r.average_amount
+          data_type: double
+        order_count:
+          expression: r.order_count
+          data_type: bigint

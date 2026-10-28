@@ -1,0 +1,40 @@
+version: 1
+layer: silver
+domain: sales
+tables:
+  - name: slv_customers
+    description: Standardized customer identifiers and names; owns a check-strategy snapshot.
+    snapshot:
+      name: customer_history
+      config:
+        target_schema: snapshots
+        unique_key: customer_id
+        strategy: check
+        check_cols:
+          - first_name
+          - last_name
+        invalidate_hard_deletes: true
+      columns:
+        - customer_id
+        - first_name
+        - last_name
+    output:
+      from:
+        ref: brz_customers
+        alias: c
+      columns:
+        customer_id:
+          expression: CAST(c.id AS BIGINT)
+          data_type: bigint
+          description: Application customer identifier.
+          data_tests:
+            - unique
+            - not_null
+        first_name:
+          expression: TRIM(c.first_name)
+          data_type: varchar
+          description: Customer first name, with surrounding whitespace removed.
+        last_name:
+          expression: TRIM(c.last_name)
+          data_type: varchar
+          description: Customer last-name initial, with surrounding whitespace removed.

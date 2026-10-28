@@ -1,0 +1,32 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_macro_arguments
+    description: Macro defaults, positional/named arguments, arrays, DuckDB maps and a nested wrapper.
+    output:
+      from:
+        ref: gld_orders
+        alias: o
+      columns:
+        order_id: o.order_id
+        default_rounding: round_money(o.amount)
+        positional_rounding: round_money(o.amount, 1)
+        named_rounding: round_money(o.amount, decimal_places => 1)
+        alternate_named_rounding: round_money(o.amount, decimal_places := 1)
+        rounded_with_fee:
+          expression: rounded_total(array(coalesce(o.amount, 0), '1'), map(array('decimal_places'), array(1)))
+          description: Add a fictional one-unit fee to demonstrate array/map macro arguments; not used by the marts.
+  - name: gld_customer_attribute_hash
+    description: Adapter introspection deferred to dbt; offline inspect/optimize reject this runtime-only model.
+    output:
+      from:
+        ref: slv_customers
+        alias: c
+      columns:
+        customer_id:
+          expression: c.customer_id
+          data_type: bigint
+        attribute_hash:
+          expression: hash_relation_attributes(ref.slv_customers, table_alias => 'c', exclude => array('customer_id'))
+          data_type: varchar

@@ -1,0 +1,56 @@
+version: 1
+model_path: models/
+macro_path: macros/
+catalog_path: catalog/
+optimization:
+  dialect: duckdb
+  format: pretty
+  preserve_marco: true
+  enrich: false
+dbt:
+  path: dbt/
+  format: pretty
+  default_configs:
+    name: defaults
+    configs:
+      - name: gold_defaults
+        target:
+          layer: gold
+        config:
+          materialized: table
+          meta:
+            owner: analytics
+      - name: silver_defaults
+        target:
+          layer: silver
+        config:
+          materialized: view
+      - name: bronze_defaults
+        target:
+          layer: bronze
+        config:
+          materialized: view
+catalog:
+  - name: catalog
+    macros:
+      - name: macros
+    include:
+      models:
+        - ./
+      macros:
+        - ./
+    sheets:
+      - name: sources
+        type: source
+      - name: brz
+        type: model
+        includes:
+          layer: bronze
+      - name: slv
+        type: model
+        includes:
+          layer: silver
+      - name: gld
+        type: model
+        includes:
+          layer: gold

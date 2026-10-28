@@ -1,0 +1,140 @@
+# Standalone dbt integration fixture.
+version: 2
+models:
+- name: bronze_orders
+  description: Raw orders with stable types.
+  config:
+    materialized: view
+    tags:
+    - bronze
+    meta:
+      owner: ingestion
+  columns:
+  - name: order_id
+    description: Stable order identifier.
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    data_tests:
+    - not_null
+  - name: amount
+  - name: status
+  - name: channel
+- name: silver_orders
+  description: Completed orders enriched with the native customer model.
+  config:
+    materialized: view
+    tags:
+    - silver
+  columns:
+  - name: order_id
+    description: Stable order identifier.
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('native_customers')
+          field: customer_id
+  - name: customer_name
+  - name: amount
+  - name: channel
+    data_tests:
+    - accepted_values:
+        arguments:
+          values:
+          - web
+          - store
+        config:
+          severity: error
+- name: customer_summary
+  description: Channel totals using a raw SQL step after normalization.
+  config:
+    materialized: table
+    tags:
+    - gold
+  columns:
+  - name: customer_id
+    description: Customer identifier.
+    data_tests:
+    - unique
+    - not_null
+  - name: web_sales
+    data_tests:
+    - nonnegative
+  - name: store_sales
+    data_tests:
+    - nonnegative
+- name: gold_customer_revenue
+  description: Completed-order count and revenue by customer.
+  config:
+    tags:
+    - finance
+    - gold
+    contract:
+      enforced: true
+    meta:
+      domain: finance
+      owner: analytics
+    materialized: table
+  columns:
+  - name: customer_id
+    description: Customer identifier.
+    data_type: integer
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_name
+    data_type: varchar
+  - name: order_count
+    data_type: bigint
+  - name: revenue
+    description: Revenue rounded with a native dbt macro.
+    data_type: decimal(12, 2)
+    constraints:
+    - type: not_null
+    data_tests:
+    - not_null
+    - nonnegative
+  constraints:
+  - type: primary_key
+    columns:
+    - customer_id
+- name: gold_daily_customer_sales
+  description: Union web and store orders, deduplicate, and join customer names for
+    daily sales.
+  config:
+    contract:
+      enforced: true
+    materialized: table
+    tags:
+    - gold
+  columns:
+  - name: customer_id
+    data_type: integer
+    data_tests:
+    - not_null
+  - name: customer_name
+    data_type: varchar
+    description: Customer name when a matching directory entry exists.
+  - name: order_date
+    data_type: date
+    data_tests:
+    - not_null
+  - name: order_count
+    data_type: bigint
+  - name: total_amount
+    data_type: decimal(38, 2)
+    data_tests:
+    - nonnegative
+  constraints:
+  - type: primary_key
+    columns:
+    - customer_id
+    - order_date

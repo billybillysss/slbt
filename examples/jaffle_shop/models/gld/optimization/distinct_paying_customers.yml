@@ -1,0 +1,18 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_distinct_paying_customers
+    description: Keep DISTINCT customer/order pairs before projecting customer_id; a customer can legitimately appear twice.
+    output:
+      sql: |
+        SELECT paid.customer_id
+        FROM (
+          SELECT DISTINCT o.customer_id, o.order_id
+          FROM ref.gld_orders AS o
+          WHERE o.amount > 0
+        ) AS paid
+      columns:
+        customer_id:
+          description: One row per distinct paid customer/order pair, NOT one row per customer.
+          data_type: bigint

@@ -1,0 +1,26 @@
+version: 1
+layer: silver
+domain: sales
+tables:
+  - name: slv_payments
+    description: Payments in currency units; shorthand columns deliberately demonstrate enrich.
+    output:
+      from:
+        ref: brz_payments
+        alias: p
+      columns:
+        payment_id:
+          expression: CAST(p.id AS BIGINT)
+          data_type: bigint
+          data_tests:
+            - unique
+            - not_null
+        order_id: p.order_id
+        payment_method: p.payment_method
+        amount:
+          expression: CAST(round_money(p.amount / 100.0) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)
+          description: Payment amount converted from cents to currency units.
+          data_tests:
+            - not_null
+            - nonnegative

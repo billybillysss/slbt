@@ -1,0 +1,18 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_payment_union
+    description: UNION ALL of card and non-card payments; repeated order/amount pairs must not be deduplicated.
+    output:
+      sql: |
+        SELECT p.order_id, p.amount
+        FROM ref.slv_payments AS p WHERE p.payment_method = 'credit_card'
+        UNION ALL
+        SELECT p.order_id, p.amount
+        FROM ref.slv_payments AS p WHERE p.payment_method <> 'credit_card'
+      columns:
+        order_id:
+          data_type: bigint
+        amount:
+          data_type: decimal(12, 2)

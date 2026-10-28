@@ -1,0 +1,25 @@
+version: 1
+layer: gold
+domain: demo
+tables:
+  - name: gld_high_value_customers
+    description: Orders above the global average having a credit-card payment; scalar and correlated subqueries.
+    output:
+      sql: |
+        SELECT candidate_order.order_id, candidate_order.customer_id, candidate_order.amount,
+          (SELECT AVG(benchmark_order.amount) FROM ref.gld_orders AS benchmark_order) AS average_order_amount
+        FROM ref.gld_orders AS candidate_order
+        WHERE candidate_order.amount > (SELECT AVG(benchmark_order.amount) FROM ref.gld_orders AS benchmark_order)
+          AND EXISTS (
+            SELECT 1 FROM ref.slv_payments AS eligible_payment
+            WHERE eligible_payment.order_id = candidate_order.order_id AND eligible_payment.payment_method = 'credit_card'
+          )
+      columns:
+        order_id:
+          data_type: bigint
+        customer_id:
+          data_type: bigint
+        amount:
+          data_type: decimal(12, 2)
+        average_order_amount:
+          data_type: double

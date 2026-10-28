@@ -1,0 +1,32 @@
+version: 1
+layer: gold
+domain: sales
+tables:
+  - name: gld_payment_method_summary
+    description: Payment-method usage, including zero-value payments.
+    config:
+      materialized: view
+      meta:
+        owner: payments
+    output:
+      from:
+        ref: slv_payments
+        alias: p
+      group_by:
+        - p.payment_method
+      columns:
+        payment_method:
+          expression: p.payment_method
+          data_type: varchar
+          data_tests:
+            - unique
+            - not_null
+        payment_count:
+          expression: COUNT(*)
+          data_type: bigint
+        paid_order_count:
+          expression: COUNT(DISTINCT p.order_id)
+          data_type: bigint
+        payment_total:
+          expression: CAST(SUM(p.amount) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)

@@ -1,0 +1,8 @@
+version: 1
+name: example
+layer: bronze
+output:
+  sql: select 1 as example_id
+  columns:
+    example_id:
+      data_type: bigint

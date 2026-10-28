@@ -1,0 +1,62 @@
+version: 1
+layer: gold
+domain: sales
+tables:
+  - name: gld_orders
+    description: One row per order, with all payment methods aggregated before the join.
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns:
+          - order_id
+    steps:
+      order_payments:
+        from:
+          ref: slv_payments
+          alias: p
+        group_by:
+          - p.order_id
+        columns:
+          order_id: p.order_id
+          amount: CAST(SUM(p.amount) AS DECIMAL(12, 2))
+          credit_card_amount: CAST(SUM(CASE WHEN p.payment_method = 'credit_card' THEN p.amount ELSE 0 END) AS DECIMAL(12, 2))
+          payment_count: COUNT(*)
+    output:
+      from:
+        ref: slv_orders
+        alias: o
+      joins:
+        - step: order_payments
+          alias: p
+          type: left
+          on: o.order_id = p.order_id
+      columns:
+        order_id:
+          expression: o.order_id
+          data_type: bigint
+          data_tests:
+            - unique
+            - not_null
+        customer_id:
+          expression: o.customer_id
+          data_type: bigint
+        order_date:
+          expression: o.order_date
+          data_type: date
+        status:
+          expression: o.status
+          data_type: varchar
+        amount:
+          expression: CAST(COALESCE(p.amount, 0) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)
+          description: Total payments for the order, including returned or pending orders; not net revenue.
+          data_tests:
+            - nonnegative
+        credit_card_amount:
+          expression: CAST(COALESCE(p.credit_card_amount, 0) AS DECIMAL(12, 2))
+          data_type: decimal(12, 2)
+        payment_count:
+          expression: COALESCE(p.payment_count, CAST(0 AS BIGINT))
+          data_type: bigint

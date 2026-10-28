@@ -1,0 +1,122 @@
+# Before-optimization inputs, independent of locally rewritten example files.
+models/gld/customer_summary.yml:
+  version: 1
+  name: customer_summary
+  layer: gold
+  domain: finance
+  description: Completed-order count and revenue by customer.
+  config:
+    contract:
+      enforced: true
+  constraints:
+    - type: primary_key
+      columns:
+        - customer_id
+  steps:
+    completed_orders:
+      from:
+        ref: silver_orders
+        alias: o
+      where: o.status = 'completed'
+      columns:
+        customer_id: o.customer_id
+        amount: o.amount
+  output:
+    sql: |
+      select customer_id, count(*) as order_count, round(sum(amount), 2) as revenue
+      from step.completed_orders
+      group by customer_id
+    columns:
+      customer_id:
+        description: Identifier of the customer.
+        data_type: bigint
+        data_tests:
+          - unique
+          - not_null
+      order_count:
+        description: Number of completed orders for the customer.
+        data_type: bigint
+        data_tests:
+          - not_null
+      revenue:
+        description: Total completed-order amount rounded to two decimals.
+        data_type: decimal(12, 2)
+        data_tests:
+          - not_null
+          - nonnegative
+models/examples/distinct_customers.yml:
+  version: 1
+  name: distinct_customers
+  layer: gold
+  domain: examples
+  description: A named DISTINCT subquery that survives optimization as a canonical step.
+  output:
+    sql: |
+      select customers.customer_id
+      from (select distinct o.customer_id from ref.silver_orders as o) as customers
+    columns:
+      customer_id:
+        description: One row per customer, including a possible null customer.
+        data_type: bigint
+models/examples/optimizer_constants.yml:
+  version: 1
+  name: optimizer_constants
+  layer: gold
+  domain: examples
+  description: A source-free query demonstrates constant folding without schema access.
+  output:
+    sql: select 1 + 2 as value
+    columns:
+      value:
+        description: The optimizer folds this expression to 3.
+        data_type: int
+models/examples/order_union_all.yml:
+  version: 1
+  name: order_union_all
+  layer: gold
+  domain: examples
+  description: Combine completed and cancelled order events without deduplicating rows.
+  output:
+    sql: |
+      select o.order_id, o.customer_id, 'sale' as event_type, o.amount
+      from ref.silver_orders as o where o.status = 'completed'
+      union all
+      select o.order_id, o.customer_id, 'cancellation' as event_type, o.amount
+      from ref.silver_orders as o where o.status = 'cancelled'
+    columns:
+      order_id:
+        data_type: bigint
+      customer_id:
+        data_type: bigint
+      event_type:
+        description: The branch that emitted this event; duplicate events are retained.
+        data_type: string
+      amount:
+        data_type: decimal(12, 2)
+models/examples/ranked_orders.yml:
+  version: 1
+  name: ranked_orders
+  layer: gold
+  domain: examples
+  description: Raw CTE and window function with deterministic ordering and a final limit.
+  output:
+    sql: |
+      with ranked as (
+        select o.order_id, o.customer_id, o.amount,
+          row_number() over (
+            partition by o.customer_id order by o.amount desc nulls last, o.order_id
+          ) as position
+        from ref.silver_orders as o
+      )
+      select r.order_id, r.customer_id, r.amount, r.position from ranked as r
+      where r.position <= 2
+      order by r.customer_id nulls last, r.position limit 10
+    columns:
+      order_id:
+        data_type: bigint
+      customer_id:
+        data_type: bigint
+      amount:
+        data_type: decimal(12, 2)
+      position:
+        data_type: bigint

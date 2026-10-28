@@ -1,0 +1,8 @@
+jaffle_shop_demo:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('SLBT_DEMO_DB_PATH', 'jaffle_shop.duckdb') }}"
+      schema: main
+      threads: 4

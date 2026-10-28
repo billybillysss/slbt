@@ -1,0 +1,45 @@
+[project]
+name = "slbt"
+dynamic = ["version"]
+description = "Semantic Layer Build Tool: compile transformation logic and metadata to dbt and AI-friendly JSON"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1",
+    "dbt-common>=1.0",
+    "jinja2>=3.1",
+    "PyYAML>=6.0.3",
+    "openpyxl>=3.1.5",
+    "pathspec>=0.12",
+    "sqlglot[c]>=30.0,<31,!=30.25.0",
+]
+
+[project.scripts]
+slbt = "slbt.cli:cli"
+
+[project.urls]
+Repository = "https://github.com/billybillysss/slbt"
+Documentation = "https://github.com/billybillysss/slbt/blob/HEAD/docs/index.md"
+Issues = "https://github.com/billybillysss/slbt/issues"
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/slbt"]
+
+[tool.hatch.version]
+path = "src/slbt/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/docs", "/scripts", "/examples", "/pyproject.toml", "/uv.lock", "/README.md", "/LICENSE", "/CONTRIBUTING.md", "/SECURITY.md", "/CHANGELOG.md"]
+
+[dependency-groups]
+dev = ["dbt-duckdb>=1.10.0", "pytest>=9.1.1", "pytest-xdist>=3.8.0"]
+
+[tool.pytest.ini_options]
+addopts = "-n 4"
+testpaths = ["tests"]
