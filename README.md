@@ -21,43 +21,35 @@
 **Unify transformation logic and business meaning. Compile to dbt, document your
 models, export structured context for AI, and inspect and optimize SQL.**
 
-slbt keeps transformations, business definitions and tests together in YAML. Its
-JSON catalogs combine SQL, descriptions, types and dependencies, giving external
-AI assistants context to generate downstream logic consistent with your
-definitions—not just infer business meaning from SQL alone.
+slbt keeps transformations, business definitions and tests in YAML. Its JSON
+catalogs combine SQL, descriptions, types and dependencies so external AI assistants
+can generate downstream logic consistent with your definitions, rather than infer
+business meaning from SQL alone.
 
-```text
-People + external AI assistants
-             │ propose and review
-             ▼
-Canonical YAML: transformations + business metadata + tests
-             │ validate · inspect · optimize
-             ├──→ dbt SQL + properties + snapshots ──→ dbt build / dbt docs
-             ├──→ resolved JSON ──→ AI context, review tools, integrations
-             └──→ editable Excel / CSV ──review and import──→ YAML
-```
+![slbt workflow: people and external AI assistants propose and review canonical YAML and SQL macros; slbt exports dbt project files, read-only JSON and editable catalogs; reviewed catalog edits return through import.](docs/assets/slbt-workflow.svg)
+
+Excel supports models, sources, macros, defaults and classifications; CSV supports
+models and sources.
 
 slbt is an **offline build tool for transformation semantics**, not a metrics
-query service or a replacement for dbt's execution engine. dbt owns database
-connections, materializations, snapshots and test execution. Documentation is
-carried into dbt properties for `dbt docs`; slbt does not host a documentation site.
+query service or a replacement for dbt's execution engine. dbt handles database
+connections, materializations, snapshots and test execution. slbt exports
+documentation as dbt properties for `dbt docs`; it does not host a documentation site.
 
 ## Why keep business meaning with transformation logic?
 
-SQL defines how values are calculated, but consumers also need to understand their
-grain, units, inclusion rules and intended use. A payment total is not necessarily
-net revenue, and a distinct order count calculated per payment method cannot
-necessarily be summed across methods.
+SQL defines calculations; consumers also need their grain, units, inclusion rules
+and intended use. A payment total is not necessarily net revenue, and distinct
+order counts per payment method cannot necessarily be summed across methods.
 
-Generate dbt artifacts and structured context from the same definitions so people
-and external AI assistants can review the implementation alongside its intended
-meaning.
+Generate dbt artifacts and structured context from those definitions so people
+and external AI assistants can review implementation and intent together.
 
 ## Keep AI-assisted logic consistent and maintainable
 
 AI assistants can produce plausible but different implementations of the same
-business request. Across many models, small differences in filters, joins, null
-handling or aggregation grain can become conflicting business definitions.
+business request. Differences in filters, joins, null handling or aggregation grain
+can create conflicting business definitions across models.
 
 Reuse accepted rules in downstream models:
 
@@ -73,11 +65,9 @@ Downstream models reference approved models
 Changes are reviewed, tested and regenerated
 ```
 
-For example, different assistants might interpret “customer lifetime value” as all
-payments, completed-order payments or payments minus refunds. Referencing an
-approved customer-value model reuses its implemented calculation instead of asking
-each assistant to recreate the rule. A different business definition should be
-explicit, not a silent reinterpretation.
+Assistants may interpret “customer lifetime value” as all payments, completed-order
+payments or payments minus refunds. Reference an approved customer-value model to
+reuse its calculation, and make different business definitions explicit.
 
 With slbt, you can:
 
@@ -86,7 +76,7 @@ With slbt, you can:
 - Review canonical YAML diffs and inspect supported
   expanded upstream SQL, including selected columns.
 - Update canonical definitions and regenerate dbt
-  artifacts and catalogs rather than editing each output independently.
+  artifacts and catalogs instead of editing outputs individually.
 - Export expressions, descriptions, types, logical column
   lineage and dependencies for subsequent work.
 
@@ -98,8 +88,8 @@ review and executed dbt tests serve different purposes; none replaces the others
 ## Why add slbt to dbt?
 
 dbt already supports descriptions, tests, metadata, reusable models and
-machine-readable project artifacts. slbt is an optional authoring and review
-layer, not a prerequisite for documenting dbt or using AI with it.
+machine-readable artifacts. slbt adds an optional authoring and review layer;
+documenting dbt or using AI with it does not require slbt.
 
 Choose slbt when you want to:
 
@@ -110,8 +100,8 @@ Choose slbt when you want to:
 - Review supported definitions through editable Excel/CSV catalogs.
 - Export scoped, resolved context for external assistants and integrations.
 
-slbt adds another format and compilation step. If handwritten dbt SQL, properties
-and existing tooling already meet your needs, you may not need it.
+slbt adds a format and compilation step. You may not need it if handwritten dbt SQL,
+properties and existing tooling meet your needs.
 
 ## How does this differ from dbt Semantic Layer?
 
@@ -127,17 +117,17 @@ join paths.
 | Define reusable metrics and dynamically query them across supported dimensions and joins | dbt Semantic Layer / MetricFlow |
 | Serve governed metric queries through managed APIs and downstream integrations | dbt Semantic Layer |
 
-Both can carry business meaning. Current dbt specifications also support semantic
-annotations within model YAML, and MetricFlow supports local development and SQL
-generation; the managed service and APIs are separate components.
+Both can carry business meaning. dbt supports semantic annotations in model YAML;
+MetricFlow supports local development and SQL generation. The managed service and
+APIs are separate components.
 
 **You do not need another semantic layer simply because you use slbt.** Add a
 metric-query layer when consumers need reusable aggregation rules, dimensional
 queries and governed metric access—not just defined transformation outputs.
 
-Some projects may benefit from both. slbt currently generates ordinary dbt
-artifacts, **not MetricFlow semantic models or metric definitions**. Using both
-requires separately maintained metric configuration and integration testing.
+Some projects may benefit from both, but slbt generates ordinary dbt artifacts,
+**not MetricFlow semantic models or metric definitions**. Using both requires
+separately maintained metric configuration and integration testing.
 
 See dbt's [semantic model specification](https://docs.getdbt.com/docs/build/semantic-models)
 and [Semantic Layer architecture](https://docs.getdbt.com/docs/use-dbt-semantic-layer/sl-architecture).
@@ -184,8 +174,8 @@ Logical optimization does not guarantee faster warehouse execution.
 
 ## Quickstart
 
-Requires Python 3.11+, [uv](https://docs.astral.sh/uv/) and Git. Install from this
-checkout; these instructions do not assume a published PyPI package.
+Requires Python 3.11+, [uv](https://docs.astral.sh/uv/) and Git. Install from source;
+these instructions do not depend on a published PyPI package.
 
 ```sh
 git clone https://github.com/billybillysss/slbt.git
@@ -198,13 +188,13 @@ uv run slbt --project-dir examples/jaffle_shop export catalog --format json
 ```
 
 Validation reports `Validated 21 models and 3 source tables offline`. Inspect
-prints optimized, expanded SQL without changing files. Exports populate the
-generated subfolders of `examples/jaffle_shop/dbt/` and create
+prints optimized, expanded SQL without changing files. Exports populate generated
+subfolders of `examples/jaffle_shop/dbt/` and create
 `examples/jaffle_shop/catalog/catalog.json`.
-Dependency installation needs network access; these slbt commands need no database
+Installing dependencies needs network access; these slbt commands need no database
 or warehouse credentials.
 
-To execute the local DuckDB demo using the same dbt project:
+To run the local DuckDB demo with the same dbt project:
 
 ```sh
 uv run dbt build --project-dir examples/jaffle_shop/dbt --profiles-dir examples/jaffle_shop/dbt
@@ -281,7 +271,7 @@ GROUP BY
 The export also emits descriptions, column types and tests as dbt properties.
 **Resolved JSON** includes SQL, column expressions and lineage, metadata,
 dependencies and macro-expansion status.
-This excerpt shows selected fields from the same model in `catalog.json`:
+Selected fields from the same model in `catalog.json`:
 
 ```json
 {
@@ -348,10 +338,10 @@ in the test suite.
 
 ## Inspect: generate optimized SQL for selected columns
 
-Where does `payment_total` come from? `inspect` expands upstream logic and
+To trace `payment_total`, use `inspect`. It expands upstream logic and
 **generates optimized SQL for the selected columns**, pruning unused projections
 and merging eligible intermediate steps. Operations needed to preserve results,
-such as joins, grouping and ranking, remain intact. No source files are changed.
+including joins, grouping and ranking, remain intact. No source files change.
 
 ```sh
 uv run slbt --project-dir examples/jaffle_shop inspect gld_payment_method_summary --columns payment_total
@@ -371,14 +361,13 @@ FROM (
 ) AS a;
 ```
 
-The query exposes the source payments, conversion from cents, rounding and
-aggregation. Payment-method grouping remains necessary even though only the total
-is selected; unrelated output columns are omitted.
+The query shows source payments, conversion from cents, rounding and aggregation.
+It retains payment-method grouping even though only the total is selected, and
+omits unrelated output columns.
 
-Generated relation aliases follow the same `a, b, c, …, z, aa, ab, …` rule as
-canonical optimization, skipping collisions. Here `a` is generated; authored `p`
-and the output name `payment_total` are preserved. SQL and logical-plan views use
-the same relation naming.
+Generated relation aliases follow canonical optimization's `a, b, c, …, z, aa, ab, …`
+rule, skipping collisions. Here `a` is generated; authored `p` and output name
+`payment_total` are preserved. SQL and logical-plan views use the same names.
 
 For a logical plan instead of SQL:
 
@@ -393,11 +382,11 @@ without optimization.
 
 ## Optimize: simplify and rewrite canonical YAML
 
-Unlike `inspect`, **`optimize` works on canonical YAML and writes optimized YAML**,
-not a standalone SQL file. It parses the model's transformations, simplifies the
-query and reconstructs structured YAML where supported. SQL embedded in steps or
-`output.sql` is also parsed; queries outside the structured subset retain SQL
-inside YAML. This is not a general `.sql`-file-to-YAML import command.
+Unlike `inspect`, **`optimize` rewrites canonical YAML** rather than producing a
+standalone SQL file.
+It parses and simplifies transformations, including SQL in steps and `output.sql`,
+then reconstructs structured YAML where supported. Other queries remain SQL within
+YAML. It does not import arbitrary `.sql` files.
 
 The bundled [lifetime-value teaching model](examples/jaffle_shop/models/gld/optimization/customer_lifetime_value.yml)
 has two pass-through steps and an unused status projection. Preview their removal:
@@ -408,7 +397,7 @@ uv run slbt --project-dir examples/jaffle_shop optimize -s gld_customer_lifetime
 
 `--preserve-macro false` expands static macros, including `round_money`, before
 optimization. **The dry run reports proposed file actions, not a YAML or SQL diff.**
-The following excerpts show the actual rewrite when applied to the teaching input.
+The excerpts show the teaching model's actual rewrite.
 
 <details>
 <summary>Before and after YAML</summary>
@@ -478,9 +467,9 @@ output:
 
 </details>
 
-Final column names and order, types, descriptions and tests are preserved. Here,
-`amount + 0` remains; the demonstrated simplification is removal of the redundant
-query layers and unused projection, not a promise that every expression is folded.
+Final column names, order, types, descriptions and tests are preserved. The rewrite
+removes redundant query layers and an unused projection; `amount + 0` remains.
+Optimization does not fold every expression.
 
 To apply the rewrite, use a review branch or a separate project copy:
 
