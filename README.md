@@ -8,6 +8,7 @@
 <h1 align="center">slbt — Semantic Layer Build Tool</h1>
 
 <p align="center">
+  <a href="https://pypi.org/project/slbt/"><img src="https://img.shields.io/pypi/v/slbt" alt="PyPI version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0D9488" alt="License: MIT"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&amp;logoColor=white" alt="Python 3.11+"></a>
   <a href="https://github.com/billybillysss/slbt/actions/workflows/ci.yml"><img src="https://github.com/billybillysss/slbt/actions/workflows/ci.yml/badge.svg" alt="CI"></a>

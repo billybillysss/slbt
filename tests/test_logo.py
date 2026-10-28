@@ -136,9 +136,10 @@ def test_readme_centers_title_logo_badges_and_navigation():
     assert logo[0] == badges[0] == navigation[0] == {"align": "center"}
     assert [tag for tag, _ in logo[1]] == ["picture", "source", "img"]
     # Inline anchors/images, without block elements or explicit line breaks.
-    assert [tag for tag, _ in badges[1]] == ["a", "img"] * 4
+    assert [tag for tag, _ in badges[1]] == ["a", "img"] * 5
     links = [attrs["href"] for tag, attrs in badges[1] if tag == "a"]
     assert links == [
+        "https://pypi.org/project/slbt/",
         "LICENSE", "pyproject.toml",
         "https://github.com/billybillysss/slbt/actions/workflows/ci.yml",
         "docs/index.md",
@@ -148,8 +149,9 @@ def test_readme_centers_title_logo_badges_and_navigation():
             assert (ROOT / href).is_file()
     images = [attrs for tag, attrs in badges[1] if tag == "img"]
     assert [image["alt"] for image in images] == [
-        "License: MIT", "Python 3.11+", "CI", "Documentation",
+        "PyPI version", "License: MIT", "Python 3.11+", "CI", "Documentation",
     ]
+    assert images[0]["src"] == "https://img.shields.io/pypi/v/slbt"
     assert all(image["src"].startswith("https://") for image in images)
     assert [tag for tag, _ in navigation[1]] == ["a"] * 5
     navigation_links = [attrs["href"] for _, attrs in navigation[1]]
